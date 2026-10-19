@@ -1,0 +1,214 @@
+/* ── Natural theme ─────────────────────────────────────────────────────────
+   A third colour mode: a quiet, flat, enterprise light mode.
+
+   Layered on top of `.nx-light` (the root carries BOTH classes — see
+   lib/theme.ts), so every light rule in index.css still applies and this file
+   only overrides colour, shape and type. The ~140 utility-class colour remaps
+   live in natural.generated.css (scripts/gen_natural_theme.py); this file is the
+   part a person decides.
+
+   PALETTE — sampled from the the enterprise login page
+     text #111111 · body #444444 · control border #aaaaaa
+     accent #006d8f (links + every filled button on that page)
+   ONE accent (teal #006d8f) · ONE signal (brick red, errors/rejections only)
+   · everything else is warm neutral. No second accent hue, anywhere.
+
+   WHAT IT DELIBERATELY DOES NOT DO
+     · no gradients, no blurred "glass" panels, no glow/blob decoration
+     · no everything-rounded: corners are 4px (2px on form fields), as on the
+       enterprise login buttons/inputs; only status dots and spinners stay circles
+     · no Inter: Radio Canada (text) + Montserrat (headings), the enterprise login
+       typefaces, falling back to Helvetica/Arial exactly as the login page's own CSS does */
+
+.nx-light.nx-natural {
+  /* Surfaces — warm paper canvas, white cards, flat steps between them */
+  --nx-canvas: #f3f1ec;
+  --nx-surface: #ffffff;
+  --nx-surface-soft: #faf9f6;
+  --nx-surface-muted: #eeece6;
+  --nx-surface-sunken: #e6e3dc;
+
+  /* Borders — warm greys; strong ≈ login #aaa */
+  --nx-border-hair: #e8e5de;
+  --nx-border-soft: #dedad1;
+  --nx-border: #c9c4b9;
+  --nx-border-strong: #a29d93;
+
+  /* Text — login #111 headings, warm greys below it (all ≥ 5.2:1 on every surface above) */
+  --nx-text: #111111;
+  --nx-text-muted: #3b3935;
+  --nx-text-faint: #5f5b54;
+  --nx-text-disabled: #9a958b;
+
+  /* The single accent */
+  --nx-accent: #006d8f;
+  --nx-accent-strong: #00566f;
+  --nx-accent-soft: #e6f0f3;
+  --nx-signal: #b23024;
+  --nx-blue: var(--nx-accent);
+  --nx-blue-strong: var(--nx-accent-strong);
+  --nx-blue-soft: var(--nx-accent-soft);
+
+  /* Elevation — flat; only floating layers (menus, dialogs) get a shadow */
+  --nx-shadow-sm: none;
+  --nx-shadow-md: 0 1px 2px rgb(17 17 17 / 0.06);
+  --nx-shadow-lg: 0 6px 20px rgb(17 17 17 / 0.12);
+
+  /* Stats / chart surfaces: flat white cards on the canvas, no glow */
+  --nx-stat-bg: var(--nx-canvas);
+  --nx-stat-bg-glow: var(--nx-canvas);
+  --nx-stat-card: #ffffff;
+  --nx-stat-card-alt: #ffffff;
+  --nx-stat-card-hi: var(--nx-surface-muted);
+  --nx-stat-grid: #e2ded5;
+  --nx-stat-line: #cfcac0;
+  --nx-stat-tooltip: #ffffff;
+  --nx-stat-hover: rgb(0 109 143 / 0.06);
+  --nx-stat-shadow: var(--nx-shadow-md);
+
+  --nx-log-error: #b23024;
+  --nx-log-warn: #5f5b54;
+
+  /* "Ink" (text-safe chart hues): same single-accent rule */
+  --nx-ink-blue: #00566f;
+  --nx-ink-cyan: #00566f;
+  --nx-ink-aqua: #00566f;
+  --nx-ink-coral: #b23024;
+  --nx-ink-green: #55524c;
+  --nx-ink-amber: #55524c;
+  --nx-ink-violet: #55524c;
+  --nx-ink-lime: #55524c;
+  --nx-ink-orange: #6b665d;
+  --nx-ink-pink: #6b665d;
+
+  font-family: "Radio Canada", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
+  line-height: 1.55;
+}
+
+/* Headings carry the second typeface. */
+.nx-natural h1,
+.nx-natural h2,
+.nx-natural h3,
+.nx-natural h4 {
+  font-family: "Montserrat", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+/* Let the layout breathe: a little more air above the page content. */
+.nx-natural main { padding-top: 2.5rem; padding-bottom: 3rem; }
+
+/* ── Chrome ───────────────────────────────────────────────────────────── */
+.nx-light.nx-natural.nx-theme > header {
+  background: #ffffff !important;
+  border-bottom: 1px solid var(--nx-border) !important;
+  box-shadow: none !important;
+}
+.nx-light.nx-natural .nx-logo-wordmark { fill: #111111; }
+.nx-natural ::selection { background: #bcd9e2; color: #111111; }
+.nx-natural * { scrollbar-color: rgba(95, 91, 84, 0.4) transparent; }
+.nx-natural *::-webkit-scrollbar-thumb { background-color: rgba(95, 91, 84, 0.35); }
+.nx-natural *::-webkit-scrollbar-thumb:hover { background-color: rgba(95, 91, 84, 0.55); }
+
+/* ── No glass, no gradients, no glow ──────────────────────────────────── */
+.nx-natural [class*="backdrop-blur"],
+.nx-natural [style*="backdrop-filter"] {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+.nx-natural [class*="bg-gradient-to-"] {
+  background-image: none !important;
+  background-color: var(--nx-surface) !important;
+}
+/* …except the thin gradient accent bars, which become a flat accent. */
+.nx-natural .absolute[class*="bg-gradient-to-"] { background-color: var(--nx-accent) !important; }
+/* Decorative glow blobs (landing hero) are pure ornament — remove them outright. */
+.nx-natural .blur-3xl,
+.nx-natural [class*="blur-3xl"] { display: none !important; }
+/* Icon tiles carry a tinted square behind a glyph; flatten the tint to the accent wash. */
+.nx-light.nx-natural .w-14.h-14[class*="bg-"] { background-color: var(--nx-surface-muted) !important; }
+.nx-light.nx-natural .w-14.h-14[class*="bg-"] svg { color: var(--nx-accent) !important; }
+/* StatsPage paints a radial page glow (`radial-gradient(... #0f1a30 ...)`) — flatten it. */
+.nx-natural [style*="radial-gradient"] { background: var(--nx-stat-bg) !important; }
+/* The title badges: blue/cyan/violet gradient + coloured glow → flat accent chip. */
+.nx-natural [style*="linear-gradient(135deg"] {
+  background: var(--nx-accent) !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+}
+/* Stat/chart cards paint `linear-gradient(160deg, card, card-alt)`; flatten onto the card colour. */
+.nx-natural [style*="linear-gradient(160deg"] { background: var(--nx-stat-card) !important; }
+/* Horizontal bars fade from 45% to 95% opacity via SVG stops; make them solid. */
+.nx-natural svg linearGradient stop { stop-opacity: 1 !important; }
+/* statsKit's 3px gradient strip across the top of each chart card */
+.nx-natural [style*="linear-gradient(90deg"][style*="transparent"] { display: none !important; }
+
+/* Attention animations → a calm static outline (no glow, no sweeping arc). */
+.nx-natural .animate-attention-pulse {
+  animation: none !important;
+  outline: 2px solid var(--nx-accent);
+  outline-offset: 2px;
+}
+.nx-natural .rotating-border-glow::before { display: none; }
+.nx-natural .rotating-border-glow { outline: 2px solid var(--nx-accent); outline-offset: 2px; }
+
+/* ── Shape: 4px, not "everything rounded" ─────────────────────────────── */
+.nx-natural .rounded-sm,
+.nx-natural .rounded,
+.nx-natural .rounded-md,
+.nx-natural .rounded-lg,
+.nx-natural .rounded-xl,
+.nx-natural .rounded-2xl,
+.nx-natural .rounded-3xl { border-radius: 4px !important; }
+.nx-natural .rounded-t-lg,
+.nx-natural .rounded-t-xl,
+.nx-natural .rounded-t-2xl { border-top-left-radius: 4px !important; border-top-right-radius: 4px !important; }
+.nx-natural .rounded-b-lg { border-bottom-left-radius: 4px !important; border-bottom-right-radius: 4px !important; }
+.nx-natural .rounded-l { border-top-left-radius: 2px !important; border-bottom-left-radius: 2px !important; }
+.nx-natural .rounded-r { border-top-right-radius: 2px !important; border-bottom-right-radius: 2px !important; }
+/* Pills with content (badges, avatars with initials) square off; EMPTY ones are
+   status dots / spinners / progress tracks and stay round. */
+.nx-natural .rounded-full:not(:empty):not(svg) { border-radius: 4px !important; }
+/* Inline pixel radii used by charts and inline-styled widgets. */
+.nx-natural [style*="border-radius: 8px"],
+.nx-natural [style*="border-radius: 10px"],
+.nx-natural [style*="border-radius: 14px"] { border-radius: 4px !important; }
+.nx-natural .leaflet-popup-content-wrapper,
+.nx-natural .leaflet-tooltip { border-radius: 4px; }
+
+/* Form fields: nearly square, quiet focus ring in the accent (login inputs are square). */
+.nx-light.nx-natural input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+.nx-light.nx-natural select,
+.nx-light.nx-natural textarea {
+  border-radius: 2px;
+  box-shadow: none;
+  border-color: var(--nx-border-strong) !important;
+}
+.nx-light.nx-natural input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):focus,
+.nx-light.nx-natural select:focus,
+.nx-light.nx-natural textarea:focus,
+.nx-light.nx-natural input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):focus-visible,
+.nx-light.nx-natural select:focus-visible,
+.nx-light.nx-natural textarea:focus-visible {
+  border-color: var(--nx-accent) !important;
+  box-shadow: 0 0 0 2px rgb(0 109 143 / 0.25) !important;
+}
+.nx-light.nx-natural input[type="checkbox"],
+.nx-light.nx-natural input[type="radio"] { accent-color: var(--nx-accent); }
+
+/* The landing page's amber call-to-action is the one filled button that is
+   `bg-amber-500 text-slate-900`; in a one-accent mode it is simply the accent. */
+.nx-light.nx-natural .bg-amber-500.text-slate-900,
+.nx-light.nx-natural .bg-amber-400.text-slate-900 {
+  background-color: var(--nx-accent) !important;
+  color: #ffffff !important;
+}
+.nx-light.nx-natural .bg-amber-500.text-slate-900:hover,
+.nx-light.nx-natural .hover\:bg-amber-400.text-slate-900:hover { background-color: var(--nx-accent-strong) !important; }
+
+/* Focus ring on nav/buttons uses the accent. */
+.nx-natural :focus-visible { outline-color: var(--nx-accent); }
+
+@media (prefers-reduced-motion: reduce) {
+  .nx-natural .animate-attention-pulse { animation: none !important; }
+}

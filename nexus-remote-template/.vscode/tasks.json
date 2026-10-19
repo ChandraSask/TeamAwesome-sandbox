@@ -1,0 +1,46 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "ui: dev",
+      "type": "shell",
+      "command": "npm run dev",
+      "options": { "cwd": "${workspaceFolder}/ui" },
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "ui: build",
+      "type": "shell",
+      "command": "npm run build",
+      "options": { "cwd": "${workspaceFolder}/ui" },
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "backend: dev",
+      "type": "shell",
+      "command": "uvicorn app.main:app --reload --port 8080",
+      "options": {
+        "cwd": "${workspaceFolder}/backend",
+        "env": { "APP_ENV": "local", "ALLOWED_ORIGINS": "http://localhost:3001" }
+      },
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "backend: build",
+      "type": "shell",
+      "command": "python -m compileall app",
+      "options": { "cwd": "${workspaceFolder}/backend" },
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "dev: ui + backend",
+      "dependsOn": ["ui: dev", "backend: dev"],
+      "dependsOrder": "parallel",
+      "problemMatcher": []
+    }
+  ]
+}

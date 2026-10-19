@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!--
+      ══ NEXUS HOST CSP PARITY — DO NOT WIDEN ══════════════════════════════════
+      This meta policy is a deliberate MIRROR of the NEXUS host CSP
+      (see ui/nexus-csp.json; host source: server/lib/csp.ts).
+
+      Why it is here: when this remote is EMBEDDED, the browser enforces the
+      HOST's policy against our assets and this HTML is never used. Standalone
+      (this file) would otherwise run with NO policy at all — so an eval'd
+      bundle, an inline <script>, or a self-hosted font would work perfectly on
+      your machine and be silently BLOCKED once embedded in prod, where the host
+      runs with CSP_REPORT_ONLY=false (enforcing). Dev/demo are report-only, so
+      they will NOT catch it either. This meta tag makes the failure local.
+
+      A <meta> CSP can only ever RESTRICT further, never widen — so adding
+      'unsafe-eval' or 'unsafe-inline' here does not "fix" anything, it only
+      hides the violation until production. `npm run check:csp` fails the build
+      if this tag is widened.
+
+      Differences from the host policy, and why:
+        • frame-ancestors is omitted — it is ignored in <meta> by spec, and the
+          host already sets frame-ancestors 'self' for the embedded case.
+        • connect-src adds your API_BASE origin, which when embedded is granted
+          by the host via your remotes.json `origin`/`connectOrigins[]` entry.
+          It is filled in at build time from the API_BASE build arg (webpack
+          `templateParameters.apiOrigin`), so there is nothing to edit here.
+      ═════════════════════════════════════════════════════════════════════════
+    -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="
+        default-src 'self';
+        base-uri 'self';
+        object-src 'none';
+        form-action 'self';
+        manifest-src 'self';
+        worker-src 'self' blob:;
+        img-src 'self' data: blob: https:;
+        style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+        font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net;
+        frame-src 'self' https://login.microsoftonline.com;
+        script-src 'self';
+        connect-src 'self' <%= apiOrigin %> https://login.microsoftonline.com https://graph.microsoft.com
+      "
+    />
+
+    <title>My App (standalone)</title>
+  </head>
+  <body>
+    <!-- Standalone dev shell only. Inside NEXUS, the host provides the container. -->
+    <div id="root"></div>
+  </body>
+</html>

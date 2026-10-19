@@ -1,0 +1,96 @@
+/* ── Three-way theme switch (header) ───────────────────────────────────────
+   Self-contained on purpose: it defines its own variables per root theme class
+   instead of relying on the Tailwind→theme remapping, so the control is
+   readable and identical in structure in every mode. 28px tall, three 28px
+   segments — small enough to sit beside the user menu without crowding it. */
+.nx-theme-switch {
+  --sw-border: #334155;
+  --sw-bg: transparent;
+  --sw-icon: #94a3b8;
+  --sw-icon-hover: #e2e8f0;
+  --sw-active-bg: #334155;
+  --sw-active-icon: #f8fafc;
+  --sw-focus: #60a5fa;
+  --sw-radius: 6px;
+
+  display: inline-flex;
+  align-items: stretch;
+  flex: 0 0 auto;
+  margin-left: 0.25rem;
+  height: 28px;
+  padding: 2px;
+  gap: 2px;
+  border: 1px solid var(--sw-border);
+  border-radius: var(--sw-radius);
+  background: var(--sw-bg);
+}
+
+.nx-light .nx-theme-switch {
+  --sw-border: #aab4c4;
+  --sw-bg: #f7f9fc;
+  --sw-icon: #5b6879;
+  --sw-icon-hover: #10192b;
+  --sw-active-bg: #ffffff;
+  --sw-active-icon: #1e50c8;
+  --sw-focus: #1e50c8;
+}
+
+/* Dark: warm graphite, the same single teal accent, near-square corners. */
+.nx-dark .nx-theme-switch {
+  --sw-border: #4a4741;
+  --sw-bg: transparent;
+  --sw-icon: #a9a499;
+  --sw-icon-hover: #f3f0ea;
+  --sw-active-bg: #006d8f;
+  --sw-active-icon: #ffffff;
+  --sw-focus: #5bb8d4;
+  --sw-radius: 4px;
+}
+
+/* Natural: enterprise login border grey, a single teal accent, near-square corners. */
+.nx-natural .nx-theme-switch {
+  --sw-border: #aaaaaa;
+  --sw-bg: #ffffff;
+  --sw-icon: #55524c;
+  --sw-icon-hover: #111111;
+  --sw-active-bg: #006d8f;
+  --sw-active-icon: #ffffff;
+  --sw-focus: #006d8f;
+  --sw-radius: 4px;
+}
+
+.nx-theme-switch__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  min-width: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: calc(var(--sw-radius) - 2px);
+  background: transparent;
+  color: var(--sw-icon);
+  cursor: pointer;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+.nx-theme-switch__btn:hover { color: var(--sw-icon-hover); }
+
+.nx-theme-switch__btn[aria-checked="true"] {
+  background: var(--sw-active-bg);
+  color: var(--sw-active-icon);
+}
+
+.nx-light .nx-theme-switch__btn[aria-checked="true"] {
+  box-shadow: 0 0 0 1px var(--sw-border);
+}
+.nx-natural .nx-theme-switch__btn[aria-checked="true"] { box-shadow: none; }
+
+.nx-theme-switch__btn:focus-visible {
+  outline: 2px solid var(--sw-focus);
+  outline-offset: 1px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nx-theme-switch__btn { transition: none; }
+}

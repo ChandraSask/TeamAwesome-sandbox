@@ -1,0 +1,201 @@
+/* ── Natural Dark ──────────────────────────────────────────────────────────
+   The dark mode, rebuilt from the Natural palette. It replaces the previous
+   navy-slate + rainbow-accent look (blue/cyan/emerald/amber/violet badges, blurred
+   glass header, gradient hero tiles, everything rounded, Inter) with the same
+   restraint as Natural:
+
+     · warm graphite surfaces (no blue cast): canvas #161513 · card #211f1c
+     · ONE accent — the enterprise login teal #006d8f (lightened to #5bb8d4 where it
+       has to be legible as text on a dark surface)
+     · ONE signal — brick red, for errors and rejections only
+     · every other hue (green, amber, violet, pink …) is a warm neutral
+     · no gradients, no blurred panels, no glow; 4px corners
+     · Radio Canada + Montserrat (the enterprise login typefaces), not Inter
+
+   Colour utilities are re-mapped in natural-dark.generated.css
+   (scripts/gen_natural_dark.py). This file is the part a person decides: tokens,
+   shape, type, and the handful of surfaces that are not Tailwind utilities. It is
+   imported AFTER the generated file so it wins at equal specificity.
+
+   Everything is scoped under `.nx-dark`, so Light and Natural are untouched. */
+
+.nx-theme.nx-dark {
+  color-scheme: dark;
+
+  --nx-canvas: #161513;
+  --nx-surface: #211f1c;
+  --nx-surface-soft: #1c1b18;
+  --nx-surface-muted: #2a2825;
+  --nx-surface-sunken: #100f0e;
+  --nx-border-hair: #2a2825;
+  --nx-border-soft: #35332e;
+  --nx-border: #4a4741;
+  --nx-border-strong: #6f6b63;
+  --nx-text: #f3f0ea;
+  --nx-text-muted: #c8c3b8;
+  --nx-text-faint: #a9a499;
+  --nx-accent: #006d8f;
+  --nx-accent-ink: #5bb8d4;
+  --nx-accent-strong: #007a9e;
+  --nx-accent-soft: rgb(91 184 212 / 0.12);
+  --nx-signal: #b23024;
+
+  /* Stats / chart surfaces — flat graphite cards, no navy, no glow */
+  --nx-stat-bg: #161513;
+  --nx-stat-bg-glow: #161513;
+  --nx-stat-card: #211f1c;
+  --nx-stat-card-alt: #1c1b18;
+  --nx-stat-card-hi: #2a2825;
+  --nx-stat-grid: #35332e;
+  --nx-stat-line: #35332e;
+  --nx-stat-text: #f3f0ea;
+  --nx-stat-text-muted: #c8c3b8;
+  --nx-stat-text-faint: #a9a499;
+  --nx-stat-tooltip: #2a2825;
+  --nx-stat-hover: rgb(255 255 255 / 0.05);
+  --nx-stat-shadow: 0 1px 2px rgb(0 0 0 / 0.4);
+
+  --nx-log-error: #e5766b;
+  --nx-log-warn: #c8c3b8;
+
+  /* "Ink" (text-safe chart hues): one accent, one signal, the rest warm neutral */
+  --nx-ink-blue: #5bb8d4;
+  --nx-ink-cyan: #5bb8d4;
+  --nx-ink-aqua: #8cc9dc;
+  --nx-ink-coral: #e5766b;
+  --nx-ink-green: #dedad1;
+  --nx-ink-amber: #c8c3b8;
+  --nx-ink-violet: #a9a499;
+  --nx-ink-lime: #c8c3b8;
+  --nx-ink-orange: #a9a499;
+  --nx-ink-pink: #8d887e;
+
+  background: var(--nx-canvas);
+  color: var(--nx-text);
+  font-family: "Radio Canada", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
+  line-height: 1.55;
+}
+
+/* Headings carry the second typeface. */
+.nx-dark h1,
+.nx-dark h2,
+.nx-dark h3,
+.nx-dark h4 {
+  font-family: "Montserrat", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+/* Let the layout breathe, as in Natural. */
+.nx-dark main { padding-top: 2.5rem; padding-bottom: 3rem; }
+
+/* ── Chrome ───────────────────────────────────────────────────────────── */
+.nx-theme.nx-dark > header {
+  background: #161513 !important;
+  border-bottom: 1px solid #35332e !important;
+  box-shadow: none !important;
+}
+.nx-dark .nx-logo-wordmark { fill: #f3f0ea; }
+.nx-dark ::selection { background: #1f5f75; color: #ffffff; }
+.nx-dark * { scrollbar-color: rgb(169 164 153 / 0.35) transparent; }
+.nx-dark *::-webkit-scrollbar-thumb { background-color: rgb(169 164 153 / 0.3); }
+.nx-dark *::-webkit-scrollbar-thumb:hover { background-color: rgb(169 164 153 / 0.5); }
+
+/* ── No glass, no gradients, no glow ──────────────────────────────────── */
+.nx-dark [class*="backdrop-blur"],
+.nx-dark [style*="backdrop-filter"] {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+.nx-dark [class*="bg-gradient-to-"] {
+  background-image: none !important;
+  background-color: #211f1c !important;
+}
+/* …except the thin gradient accent bars, which become a flat accent. */
+.nx-dark .absolute[class*="bg-gradient-to-"] { background-color: #006d8f !important; }
+/* Decorative glow blobs (landing hero) are pure ornament — remove them outright. */
+.nx-dark .blur-3xl,
+.nx-dark [class*="blur-3xl"] { display: none !important; }
+/* Icon tiles: a flat raised square with the accent glyph. */
+.nx-theme.nx-dark .w-14.h-14[class*="bg-"] { background-color: #2a2825 !important; }
+.nx-theme.nx-dark .w-14.h-14[class*="bg-"] svg { color: #5bb8d4 !important; }
+/* Stat/chart cards paint `linear-gradient(160deg, card, card-alt)` — a subtle two-tone fade.
+   Flatten onto the single card colour. */
+.nx-dark [style*="linear-gradient(160deg"] { background: var(--nx-stat-card) !important; }
+/* Horizontal bars fade from 45% to 95% opacity via SVG stops; make them solid. */
+.nx-dark svg linearGradient stop { stop-opacity: 1 !important; }
+/* statsKit's gradient strip across the top of each chart card */
+.nx-dark [style*="linear-gradient(90deg"][style*="transparent"] { display: none !important; }
+/* StatsPage paints a navy radial glow behind the whole page (inline `radial-gradient(... #0f1a30 ...)`).
+   Flatten it onto the graphite stats background. */
+.nx-dark [style*="radial-gradient"] { background: var(--nx-stat-bg) !important; }
+/* The title badges: gradient + coloured glow → flat accent chip. */
+.nx-dark [style*="linear-gradient(135deg"] {
+  background: #006d8f !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+}
+/* Flat elevation: the heavy Tailwind drop shadows become one hairline. */
+.nx-dark .shadow-sm,
+.nx-dark .shadow-md,
+.nx-dark .shadow-lg,
+.nx-dark .shadow-xl,
+.nx-dark .shadow-2xl { --tw-shadow: 0 1px 2px rgb(0 0 0 / 0.45); --tw-shadow-colored: 0 1px 2px var(--tw-shadow-color); }
+.nx-dark .shadow-2xl,
+.nx-dark .shadow-xl { --tw-shadow: 0 8px 24px rgb(0 0 0 / 0.5); --tw-shadow-colored: 0 8px 24px var(--tw-shadow-color); }
+
+/* Attention animations → a calm static outline (no glow, no sweeping arc). */
+.nx-dark .animate-attention-pulse {
+  animation: none !important;
+  outline: 2px solid #5bb8d4;
+  outline-offset: 2px;
+}
+.nx-dark .rotating-border-glow::before { display: none; }
+.nx-dark .rotating-border-glow { outline: 2px solid #5bb8d4; outline-offset: 2px; }
+
+/* ── Shape: 4px, not "everything rounded" ─────────────────────────────── */
+.nx-dark .rounded-sm,
+.nx-dark .rounded,
+.nx-dark .rounded-md,
+.nx-dark .rounded-lg,
+.nx-dark .rounded-xl,
+.nx-dark .rounded-2xl,
+.nx-dark .rounded-3xl { border-radius: 4px !important; }
+.nx-dark .rounded-t-lg,
+.nx-dark .rounded-t-xl,
+.nx-dark .rounded-t-2xl { border-top-left-radius: 4px !important; border-top-right-radius: 4px !important; }
+.nx-dark .rounded-b-lg { border-bottom-left-radius: 4px !important; border-bottom-right-radius: 4px !important; }
+.nx-dark .rounded-l { border-top-left-radius: 2px !important; border-bottom-left-radius: 2px !important; }
+.nx-dark .rounded-r { border-top-right-radius: 2px !important; border-bottom-right-radius: 2px !important; }
+/* Pills with content (badges, initials) square off; EMPTY ones are dots/spinners/tracks. */
+.nx-dark .rounded-full:not(:empty):not(svg) { border-radius: 4px !important; }
+/* Inline pixel radii used by charts and inline-styled widgets. */
+.nx-dark [style*="border-radius: 8px"],
+.nx-dark [style*="border-radius: 10px"],
+.nx-dark [style*="border-radius: 14px"] { border-radius: 4px !important; }
+.nx-dark .leaflet-popup-content-wrapper,
+.nx-dark .leaflet-tooltip { border-radius: 4px; }
+
+/* Form fields: nearly square; the focus ring is the accent. */
+.nx-theme.nx-dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+.nx-theme.nx-dark select,
+.nx-theme.nx-dark textarea {
+  border-radius: 2px;
+  box-shadow: none;
+}
+.nx-theme.nx-dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):focus,
+.nx-theme.nx-dark select:focus,
+.nx-theme.nx-dark textarea:focus,
+.nx-theme.nx-dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):focus-visible,
+.nx-theme.nx-dark select:focus-visible,
+.nx-theme.nx-dark textarea:focus-visible {
+  border-color: #5bb8d4 !important;
+  box-shadow: 0 0 0 2px rgb(91 184 212 / 0.28) !important;
+}
+.nx-theme.nx-dark input[type="checkbox"],
+.nx-theme.nx-dark input[type="radio"] { accent-color: #006d8f; }
+.nx-dark :focus-visible { outline-color: #5bb8d4; }
+
+@media (prefers-reduced-motion: reduce) {
+  .nx-dark .animate-attention-pulse { animation: none !important; }
+}
