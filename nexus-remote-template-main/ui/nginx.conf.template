@@ -1,0 +1,67 @@
+# Rendered at container start by the official nginx image's envsubst step
+# (/docker-entrypoint.d/20-envsubst-on-templates.sh) into
+# /etc/nginx/conf.d/default.conf. Only ${ALLOWED_ORIGIN} is substituted.
+#
+# R6 \u2014 ACAO is NO LONGER a hardcoded "*". The host loads remoteEntry.js + hashed
+# chunks cross-origin, so CORS is required, but in PRODUCTION it MUST be scoped to
+# the exact NEXUS host origin(s) rather than a wildcard. Set ALLOWED_ORIGIN at
+# deploy time to the host origin, e.g.:
+#   ALLOWED_ORIGIN=https://nexus.example.com
+# For LOCAL/standalone dev only, "*" is acceptable and is the default fallback
+# injected by the Dockerfile ARG.
+server {
+  listen 8080;
+  server_name _;
+  root /usr/share/nginx/html;
+
+  # remoteEntry.js + hashed chunks are <script>-loaded by the host from ANOTHER
+  # origin, so they MUST be served with CORS. Origin is scoped via ALLOWED_ORIGIN.
+  #
+  # CSS is included deliberately. The host CSP grants style-src to this remote's
+  # origin (it derives style-src from script-src), so the host CAN <link> our
+  # extracted .css chunks — but only if we serve them cross-origin. Omitting css
+  # here produces the "JS loads, tile renders unstyled" bug.
+  #
+  # Fonts are NOT listed, and that is intentional: the host font-src does not
+  # include remote origins, so a font file served from here is CSP-blocked no
+  # matter what CORS we send. ui/webpack.config.js inlines fonts as data: URLs
+  # for exactly this reason.
+  location ~* \.(js|mjs|css|map|json)$ {
+    add_header Access-Control-Allow-Origin  "${ALLOWED_ORIGIN}" always;
+    add_header Access-Control-Allow-Methods "GET, OPTIONS" always;
+    add_header Access-Control-Allow-Headers "*" always;
+    # Vary on Origin so a shared cache never serves one host's ACAO to another.
+    add_header Vary "Origin" always;
+    add_header Cross-Origin-Resource-Policy "cross-origin" always;
+    # Hashed chunks are immutable; remoteEntry.js should NOT be long-cached.
+    if ($request_filename ~* remoteEntry\.js$) {
+      add_header Cache-Control "no-cache" always;
+    }
+    try_files $uri =404;
+  }
+
+  # Images may be referenced by our CSS/JSX from the host document. The host
+  # img-src allows "https:", so any https origin is permitted — we only need the
+  # CORS/CORP headers so a cross-origin fetch (not just a plain <img>) succeeds.
+  location ~* \.(png|jpe?g|gif|svg|webp|avif|ico)$ {
+    add_header Access-Control-Allow-Origin  "${ALLOWED_ORIGIN}" always;
+    add_header Vary "Origin" always;
+    add_header Cross-Origin-Resource-Policy "cross-origin" always;
+    try_files $uri =404;
+  }
+
+  # GUARD: font files must never be served from this origin — the host font-src
+  # is "'self' data: fonts.gstatic.com cdn.jsdelivr.net" and 'self' resolves to
+  # the HOST, so the browser refuses them and the tile silently falls back to a
+  # system typeface. Returning 404 here makes that a LOUD, obvious failure during
+  # integration rather than a subtle visual regression in prod. If you hit this,
+  # inline the font (webpack `type: 'asset/inline'`) or use an allowed CDN.
+  location ~* \.(woff2?|ttf|otf|eot)$ {
+    return 404;
+  }
+
+  # Standalone SPA fallback (only used when the remote runs by itself).
+  location / {
+    try_files $uri $uri/ /index.html;
+  }
+}

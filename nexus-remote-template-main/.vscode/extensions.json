@@ -1,0 +1,11 @@
+{
+  // Recommended extensions for working on a NEXUS remote. DX convenience only —
+  // this does NOT enforce the integration contract (that lives in the host server).
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "ms-azuretools.vscode-docker",
+    "ms-azuretools.vscode-bicep",
+    "ms-vscode.vscode-typescript-next"
+  ]
+}

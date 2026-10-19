@@ -1,0 +1,115 @@
+# NEXUS remote-app CI — mirrors the host pipeline.
+# Includes the SAME npm-cache fix used by the host (writable HOME + cache to
+# $CI_PROJECT_DIR/.npm) so `npm ci` doesn't hit EACCES on /.npm under rootless runners.
+
+stages:
+  - test
+  - build
+  - deploy
+
+variables:
+  NODE_IMAGE: "node:24-alpine"
+  # Give npm a writable HOME + cache dir inside the project checkout.
+  npm_config_cache: "$CI_PROJECT_DIR/.npm"
+  HOME: "$CI_PROJECT_DIR"
+  # Fill these in project CI/CD settings:
+  #   ACR_LOGIN_SERVER, ACR_NAME, AZURE_RG, ACA_ENV_ID, ACR_PULL_IDENTITY_ID,
+  #   AAD_TENANT_ID, API_AUDIENCE, PUBLIC_PATH_UI,
+  #   ALLOWED_ORIGIN  (R6 — the NEXUS HOST origin that embeds this remote, e.g.
+  #                    https://nexus.example.com — used to scope UI CORS; do NOT
+  #                    leave as "*" in production)
+
+# ── UI: lint/typecheck/build ─────────────────────────────────────────────────
+test:ui:
+  stage: test
+  image: $NODE_IMAGE
+  cache:
+    key:
+      files:
+        - ui/package-lock.json
+    paths:
+      - ui/.npm/
+  before_script:
+    - "cd ui"
+    - "test -f package-lock.json || { echo 'ERROR: ui/package-lock.json is missing — run `npm install` locally and COMMIT the lockfile before pushing.'; exit 1; }"
+    - 'mkdir -p "$CI_PROJECT_DIR/ui/.npm"'
+    - 'npm ci --cache "$CI_PROJECT_DIR/ui/.npm"'
+  script:
+    # `npm run build` triggers the `postbuild` hook → scripts/check-csp.cjs, which
+    # fails the job if the bundle would violate the NEXUS host CSP.
+    - npm run build
+    # Re-run in STRICT mode so WARNINGS also fail CI (same-origin Workers,
+    # <object>/<embed>, .webmanifest). These are survivable in a standalone
+    # deploy but blocked once embedded, so CI is the right place to be strict.
+    #
+    # ⚠️ If this job fails, the fix is in YOUR bundle — NOT in ui/nexus-csp.json.
+    # That file mirrors the host policy (host repo: server/lib/csp.ts +
+    # deployment/lib/common.sh). Editing it to go green only defers the failure
+    # to production, where the host CSP is ENFORCING (CSP_REPORT_ONLY=false)
+    # while dev/demo are merely report-only. A genuine new directive requires a
+    # HOST change from the platform team.
+    - npm run check:csp:strict
+
+# ── Backend: install/import check ────────────────────────────────────────────
+test:backend:
+  stage: test
+  image: python:3.12-slim
+  cache:
+    key:
+      files:
+        - backend/requirements.txt
+    paths:
+      - backend/.pip-cache/
+  before_script:
+    - cd backend
+    - pip install --cache-dir "$CI_PROJECT_DIR/backend/.pip-cache" -r requirements.txt
+  script:
+    - python -m compileall app
+    - python -c "import app.main"
+
+# ── Build + push both images ─────────────────────────────────────────────────
+docker-build:
+  stage: build
+  image: mcr.microsoft.com/azure-cli:latest
+  services:
+    - docker:dind
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
+  before_script:
+    - az acr login --name "$ACR_NAME"
+  script:
+    - export TAG="$CI_COMMIT_SHORT_SHA"
+    # UI build needs the ABSOLUTE publicPath for its origin.
+    - >
+      docker build
+      --build-arg PUBLIC_PATH="$PUBLIC_PATH_UI"
+      --build-arg API_SCOPE="$API_AUDIENCE/access_as_user"
+      --build-arg ALLOWED_ORIGIN="$ALLOWED_ORIGIN"
+      -t "$ACR_LOGIN_SERVER/${CI_PROJECT_NAME}-ui:$TAG" ui
+    - docker push "$ACR_LOGIN_SERVER/${CI_PROJECT_NAME}-ui:$TAG"
+    - docker build -t "$ACR_LOGIN_SERVER/${CI_PROJECT_NAME}-be:$TAG" backend
+    - docker push "$ACR_LOGIN_SERVER/${CI_PROJECT_NAME}-be:$TAG"
+  only:
+    - main
+
+# ── Deploy both Container Apps ───────────────────────────────────────────────
+deploy-aca:
+  stage: deploy
+  image: mcr.microsoft.com/azure-cli:latest
+  script:
+    - export TAG="$CI_COMMIT_SHORT_SHA"
+    - >
+      az deployment group create -g "$AZURE_RG"
+      -f deployment/containerapp.bicep
+      -p appName="$CI_PROJECT_NAME"
+         environmentId="$ACA_ENV_ID"
+         acrLoginServer="$ACR_LOGIN_SERVER"
+         acrPullIdentityId="$ACR_PULL_IDENTITY_ID"
+         uiImage="$ACR_LOGIN_SERVER/${CI_PROJECT_NAME}-ui:$TAG"
+         beImage="$ACR_LOGIN_SERVER/${CI_PROJECT_NAME}-be:$TAG"
+         tenantId="$AAD_TENANT_ID"
+         apiAudience="$API_AUDIENCE"
+         allowedOrigin="$ALLOWED_ORIGIN"
+  only:
+    - main
