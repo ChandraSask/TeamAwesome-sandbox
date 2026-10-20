@@ -1,0 +1,21 @@
+{
+  "name": "hackathon-starter",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node tooling.mjs dev",
+    "build": "node tooling.mjs build",
+    "preview": "node tooling.mjs preview"
+  },
+  "engines": {
+    "node": ">=20.18.0"
+  },
+  "dependencies": {
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "esbuild-wasm": "^0.25.12"
+  }
+}
