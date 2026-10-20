@@ -1,11 +1,10 @@
+node_modules/
+dist/
 .venv/
-venv/
-**/node_modules/
-**/dist/
-**/__pycache__/
-**/.npm/
+__pycache__/
+.pytest_cache/
 .env
 .env.*
-*.py[cod]
-*.log
+!.env.example
+*.zip
 .DS_Store

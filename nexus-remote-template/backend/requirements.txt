@@ -1,7 +1,0 @@
-# NEXUS remote backend (FastAPI variant) — pinned for reproducible builds.
-# Token B validation: pyjwt provides JWT verify + PyJWKClient (JWKS fetch/cache).
-# cryptography is REQUIRED by pyjwt for RS256 signature verification.
-fastapi==0.115.6
-uvicorn[standard]==0.34.0
-pyjwt==2.10.1
-cryptography==44.0.0
