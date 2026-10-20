@@ -36,10 +36,10 @@ bash deployment/deploy.sh
 
 `REGISTRY` is the resource name, not the `.azurecr.io` hostname. The script reads the login server, builds remotely with ACR, tags the image uniquely, and updates the existing Container App. It does not enable registry admin credentials or change ingress.
 
-Check the new revision is healthy, then open the app URL and test **Try a greeting**. If your app uses multiple revision mode, inspect traffic settings and route traffic to the intended revision through your normal Azure process. An image update does not guarantee traffic has moved.
+Check the new revision is healthy, then open the app URL and verify the PFE Dashboard loads. If your app uses multiple revision mode, inspect traffic settings and route traffic to the intended revision through your normal Azure process. An image update does not guarantee traffic has moved.
 
 If the image cannot be pulled, check the Container App's registry identity/permissions. If the revision never becomes healthy, check target port 8000 and revision logs. ACR build requires registry build permissions and access to the base-image/package registries.
 
-Notes remain browser-local after deployment. They do not move from localhost to the Azure address.
+PFE demo data remains browser-local after deployment. It does not move from localhost to the Azure address, and simulated submissions do not notify a manager.
 
 CLI reference: [ACR builds](https://learn.microsoft.com/en-us/cli/azure/acr#az-acr-build) and [Container App updates](https://learn.microsoft.com/en-us/cli/azure/containerapp#az-containerapp-update).

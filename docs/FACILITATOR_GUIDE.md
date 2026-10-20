@@ -10,9 +10,9 @@ Run this dry run using a participant account:
 
 1. Extract a clean copy into a writable folder (including a path with spaces).
 2. Run the setup commands in `README.md`, then run `npm run dev` from `frontend/`.
-3. Open the local URL and confirm **Try a greeting** succeeds.
+3. Open the local URL and confirm the PFE Dashboard loads.
 4. Edit `appConfig.js`, refresh, and confirm the update.
-5. Save a note, refresh, remove it, and confirm the empty state.
+5. Save a fictional goal and accomplishment, refresh, remove them, and confirm the empty states.
 6. Press Ctrl+C and confirm a second launch works without port conflicts.
 7. Run the read-only setup checker and confirm Copilot reads the repository instructions.
 
@@ -60,7 +60,7 @@ Open http://localhost:8000 and test the greeting. `/healthz` is the health endpo
 
 Follow [deployment/README.md](../deployment/README.md). Prepare the existing Container App, registry pull permissions, ingress target port 8000, and participant access before the event. The helper updates an existing app; it does not create infrastructure or configure identity.
 
-Supply resource names privately when available. Use managed identity for registry pulls; do not give participants registry passwords or put credentials in a ZIP. Foundry can be introduced through the backend later. Any shared persistent data needs an explicit storage decision; browser notes are deliberately only a local example.
+Supply resource names privately when available. Use managed identity for registry pulls; do not give participants registry passwords or put credentials in a ZIP. Foundry can be introduced through the backend later. Any shared persistent data needs an explicit storage decision; the PFE workspace is deliberately only a browser-local example.
 
 ## Historical material
 

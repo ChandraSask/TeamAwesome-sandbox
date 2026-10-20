@@ -1,59 +1,48 @@
 import { useEffect, useState } from "react";
 import { appConfig } from "./appConfig";
-import { getGreeting } from "./api";
-import Card from "./components/Card";
-import Notes from "./components/Notes";
 import SaskTelLogo from "./components/SaskTelLogo";
+import usePfeWorkspace from "./usePfeWorkspace";
+import Accomplishments from "./pages/Accomplishments";
 import Dashboard from "./pages/Dashboard";
+import Draft from "./pages/Draft";
+import Goals from "./pages/Goals";
+import History from "./pages/History";
+import Refine from "./pages/Refine";
 
 const pages = [
-  { id: "home", label: "Home", icon: "⌂" },
-  { id: "dashboard", label: "Dashboard", icon: "◫" },
-  { id: "notes", label: "My notes", icon: "▤" },
-  { id: "about", label: "About", icon: "○" },
+  { id: "dashboard", label: "Dashboard", icon: "▦" },
+  { id: "goals", label: "Goals", icon: "◎" },
+  { id: "accomplishments", label: "Accomplishments", icon: "✓" },
+  { id: "refine", label: "Refine", icon: "✎" },
+  { id: "history", label: "History", icon: "◷" },
+  { id: "draft", label: "PFE Draft", icon: "▤" },
 ];
 
 export default function App() {
+  const [page, setPage] = useState("dashboard");
+  const { workspace, storageMessage, commit } = usePfeWorkspace();
+
   useEffect(() => {
     document.title = appConfig.name;
   }, []);
-  const [page, setPage] = useState("home");
-  const [connection, setConnection] = useState({ state: "idle", message: "" });
-  async function checkConnection() {
-    setConnection({ state: "loading", message: "Connecting…" });
-    try {
-      const result = await getGreeting(appConfig.userName);
-      setConnection({ state: "success", message: result.message });
-    } catch {
-      setConnection({
-        state: "error",
-        message:
-          "Couldn’t reach the app service. Check that the backend window is running, then try again.",
-      });
-    }
-  }
+
+  const pageProps = { workspace, commit, navigate: setPage };
+
   return (
     <div className="app-shell">
       <a className="skip-link" href="#main">
         Skip to content
       </a>
       <aside className="sidebar">
-        <a
-          className="brand"
-          href="#"
-          onClick={(e) => {
-            e.preventDefault();
-            setPage("home");
-          }}
-        >
+        <button className="brand brand-button" onClick={() => setPage("dashboard")}>
           <SaskTelLogo />
-        </a>
+        </button>
         <div className="workspace-name">
           {appConfig.name}
-          <span>Performance & development</span>
+          <span>Employee workspace</span>
         </div>
-        <div className="workspace-label">WORKSPACE</div>
-        <nav aria-label="Main navigation">
+        <div className="workspace-label">MY PFE</div>
+        <nav aria-label="Employee navigation">
           {pages.map((item) => (
             <button
               key={item.id}
@@ -63,22 +52,22 @@ export default function App() {
             >
               <span aria-hidden="true">{item.icon}</span>
               {item.label}
-              {page === item.id && <span className="nav-dot" />}
             </button>
           ))}
         </nav>
         <div className="sidebar-bottom">
-          <span className="demo-pill">Demo workspace</span>
+          <span className="demo-pill">Local demo</span>
           <p>
-            Enterprise AI
-            <br />
-            Internal hackathon
+            Data is fictional and saved only in this browser. It is not shared
+            with a manager.
           </p>
           <div className="profile">
-            <span className="avatar">{appConfig.userInitials}</span>
+            <span className="avatar">{workspace.profile.initials}</span>
             <div>
-              <strong>{appConfig.userName} Morgan</strong>
-              <span>Fictional demo profile</span>
+              <strong>
+                {workspace.profile.firstName} {workspace.profile.lastName}
+              </strong>
+              <span>Fictional employee</span>
             </div>
           </div>
         </div>
@@ -86,197 +75,31 @@ export default function App() {
       <div className="main-shell">
         <header className="topbar">
           <span>
-            Workspace <span className="breadcrumb">/</span>{" "}
+            My PFE <span className="breadcrumb">/</span>{" "}
             <strong>{pages.find((item) => item.id === page).label}</strong>
           </span>
           <span className="topbar-label">
-            <span className="green-dot" /> SaskTel · Enterprise AI
+            <span className="green-dot" /> PFE {workspace.cycle.label}
           </span>
         </header>
         <main id="main" tabIndex={-1}>
-          {page === "home" && (
-            <>
-              <div className="page-heading">
-                <div>
-                  <p className="eyebrow">MY WORKSPACE</p>
-                  <h1>
-                    Welcome, {appConfig.userName}
-                    <span className="accent">.</span>
-                  </h1>
-                  <p>{appConfig.tagline}</p>
-                </div>
-                <span className="outline-pill">Demo environment</span>
-              </div>
-              <section className="hero">
-                <div className="hero-copy">
-                  <span className="hero-label">YOUR GROWTH, IN FOCUS</span>
-                  <h2>{appConfig.welcomeTitle}</h2>
-                  <p>{appConfig.welcomeDescription}</p>
-                  <button
-                    className="light-button"
-                    onClick={() => setPage("dashboard")}
-                  >
-                    View my dashboard <span aria-hidden="true">↗</span>
-                  </button>
-                </div>
-                <div className="hero-art" aria-hidden="true">
-                  <div className="brand-line" />
-                  <div className="brand-line" />
-                  <div className="brand-line" />
-                  <div className="brand-line" />
-                  <div className="brand-line" />
-                  <div className="brand-line" />
-                </div>
-              </section>
-              <div className="section-heading">
-                <h2>Your workspace</h2>
-                <span className="muted">Explore the essentials</span>
-              </div>
-              <div className="home-grid">
-                <Card>
-                  <span className="tile-icon" aria-hidden="true">
-                    ✎
-                  </span>
-                  <h3>My notes</h3>
-                  <p>
-                    Capture a contribution, a learning moment, or something to
-                    discuss at your next check-in.
-                  </p>
-                  <button
-                    className="text-button"
-                    onClick={() => setPage("notes")}
-                  >
-                    Open my notes <span aria-hidden="true">→</span>
-                  </button>
-                </Card>
-                <Card>
-                  <span className="tile-icon" aria-hidden="true">
-                    ◫
-                  </span>
-                  <h3>My goals & development</h3>
-                  <p>
-                    Explore example goals, recent accomplishments, and learning
-                    activities in one view.
-                  </p>
-                  <button
-                    className="text-button"
-                    onClick={() => setPage("dashboard")}
-                  >
-                    Open dashboard <span aria-hidden="true">→</span>
-                  </button>
-                </Card>
-                <Card>
-                  <span className="tile-icon" aria-hidden="true">
-                    ✳
-                  </span>
-                  <h3>About this workspace</h3>
-                  <p>
-                    Understand what this starting workspace includes and where
-                    your team can take it next.
-                  </p>
-                  <button
-                    className="text-button"
-                    onClick={() => setPage("about")}
-                  >
-                    Explore this workspace <span aria-hidden="true">→</span>
-                  </button>
-                </Card>
-              </div>
-              <div className="bottom-note">
-                <span aria-hidden="true">✦</span>
-                <p>
-                  Start with one reflection. Build a clearer picture of your
-                  progress over time.
-                </p>
-              </div>
-            </>
+          {storageMessage && (
+            <div className="alert error" role="alert">
+              {storageMessage}
+            </div>
           )}
-          {page === "dashboard" && <Dashboard navigate={setPage} />}
-          {page === "notes" && (
-            <>
-              <div className="page-heading">
-                <div>
-                  <p className="eyebrow">PERSONAL WORKSPACE</p>
-                  <h1>
-                    My notes<span className="accent">.</span>
-                  </h1>
-                  <p>
-                    Keep track of contributions, learning, and future
-                    conversations.
-                  </p>
-                </div>
-              </div>
-              <Notes />
-            </>
+          {page === "dashboard" && <Dashboard {...pageProps} />}
+          {page === "goals" && <Goals {...pageProps} />}
+          {page === "accomplishments" && (
+            <Accomplishments {...pageProps} />
           )}
-          {page === "about" && (
-            <>
-              <div className="page-heading">
-                <div>
-                  <p className="eyebrow">A STARTING POINT</p>
-                  <h1>
-                    Yours to shape<span className="accent">.</span>
-                  </h1>
-                  <p>A simple workspace with space to grow.</p>
-                </div>
-              </div>
-              <Card className="about-card">
-                <span className="tile-icon" aria-hidden="true">
-                  ✳
-                </span>
-                <h2>Meet {appConfig.name}</h2>
-                <p>
-                  This workspace brings goals, accomplishments, development, and
-                  personal reflections together. It is an early starting point
-                  for your team to shape—not a finished performance review
-                  system.
-                </p>
-                <h3>A few things to know</h3>
-                <p>
-                  Alex is a fictional demo profile. There is no sign-in, and
-                  notes stay in this browser only. They are not shared between
-                  people or devices.
-                </p>
-                <p>
-                  The dashboard uses read-only fictional examples. Appraisal
-                  forms, manager feedback, shared saving, and AI assistance are
-                  not built yet. Your team can choose which journey to develop
-                  with your facilitator.
-                </p>
-                <button
-                  className="primary"
-                  onClick={() => setPage("dashboard")}
-                >
-                  Explore dashboard <span aria-hidden="true">↗</span>
-                </button>
-                <details className="connection-example">
-                  <summary>Starter connection example</summary>
-                  <p>
-                    This small example checks the connection to the app service.
-                  </p>
-                  <button
-                    className="text-button"
-                    disabled={connection.state === "loading"}
-                    onClick={checkConnection}
-                  >
-                    {connection.state === "loading"
-                      ? "Connecting…"
-                      : "Try a greeting"}
-                  </button>
-                  <p
-                    role="status"
-                    className={`small connection ${connection.state}`}
-                  >
-                    {connection.message}
-                  </p>
-                </details>
-              </Card>
-            </>
-          )}
+          {page === "refine" && <Refine {...pageProps} />}
+          {page === "history" && <History {...pageProps} />}
+          {page === "draft" && <Draft {...pageProps} />}
         </main>
         <footer>
           {appConfig.name}
-          <span>SaskTel · Enterprise AI</span>
+          <span>Fictional local prototype · SaskTel</span>
         </footer>
       </div>
     </div>

@@ -9,10 +9,11 @@ The app is at http://127.0.0.1:5173. Save a React or CSS file, then refresh the 
 ## A first ten minutes
 
 1. Open the whole repository folder in VS Code.
-2. Change the app name and welcome words in `frontend/src/appConfig.js`.
+2. Change the tagline or fictional employee words in `frontend/src/appConfig.js`.
 3. Change `--accent` and related colors in `frontend/src/styles.css` with Copilot's help.
-4. Open **My notes**, save a fictional note, and refresh. The note stays in this browser.
-5. In **About**, expand **Starter connection example** and click **Try a greeting**. The response comes from Python.
+4. Open **Goals**, add a fictional goal, and refresh. The goal stays in this browser.
+5. Add an accomplishment, connect it to the goal, and view how Dashboard completion changes.
+6. Open **PFE Draft**. Included accomplishments appear automatically under their selected section; employee comments can be edited and saved there.
 
 ## Tell Copilot what you want
 
@@ -22,7 +23,7 @@ Describe a small visible outcome, not the entire app in one request.
 
 > Add a new page called [name] with [fields]. Ask me what should happen when I save before choosing where to store it.
 
-> Explain how the greeting travels from the button to Python. Show me the two files I would change.
+> Explain how PFE data is saved in this browser. Show me the files involved.
 
 > We agreed that [decision]. Update docs/PROJECT_CONTEXT.md so the next coding session remembers it.
 
@@ -32,12 +33,14 @@ These files give the assistant context; they do not guarantee perfect memory. St
 
 | I want to change… | Start here |
 | --- | --- |
-| Name, greeting, welcome text | `frontend/src/appConfig.js` |
+| Name, cycle, welcome text | `frontend/src/appConfig.js` |
 | Pages and navigation | `frontend/src/App.jsx` |
 | Colors, spacing, layout | `frontend/src/styles.css` |
 | Dashboard screen | `frontend/src/pages/Dashboard.jsx` |
-| Fictional goals and development data | `frontend/src/data/workspace.js` |
-| Notes example | `frontend/src/components/Notes.jsx` |
+| Fictional starting data | `frontend/src/data/pfeDefaults.js` |
+| Goals and accomplishments | `frontend/src/pages/Goals.jsx` and `frontend/src/pages/Accomplishments.jsx` |
+| PFE draft layout and sections | `frontend/src/pages/Draft.jsx` |
+| Browser-local persistence | `frontend/src/usePfeWorkspace.js` |
 | Reusable card | `frontend/src/components/Card.jsx` |
 | Request from the browser | `frontend/src/api.js` |
 | Python greeting | `backend/app/routes/hello.py` |
@@ -50,10 +53,9 @@ These files give the assistant context; they do not guarantee perfect memory. St
 | Setup asks for Node/Python | Ask your facilitator to install the required tools. |
 | Package download fails | Keep the error visible; ask the facilitator to check corporate network/package access. |
 | Port already in use | Stop the previous launcher with Ctrl+C. Do not keep opening new launchers. |
-| Greeting cannot connect | Check the launcher for a backend error, fix it, then try again. |
 | Changes do not appear | Save the file; check the launcher is running; refresh the browser. |
-| Notes disappear on another device | Expected: notes are local to this browser and address. They are not shared. |
-| Browser says storage cannot save | Copy your note somewhere safe and ask your facilitator to check browser storage settings. |
+| PFE data disappears on another device or URL | Expected: data is local to this browser and address. It is not shared. |
+| Browser says storage cannot save | Copy important draft text somewhere safe and ask your facilitator to check browser storage settings. |
 
 Use fictional information. The demo user is just a label, and anyone who can reach the deployed app can use its public endpoints.
 

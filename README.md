@@ -4,7 +4,7 @@ Team 1 demo
 
 **Start with a working app. Make it your team's own.**
 
-This repository is the starting folder for our two-day internal hackathon, supported by Enterprise AI. It gives you a simple performance-and-development workspace so you can focus on your idea instead of setting everything up from scratch.
+This repository is the starting folder for our two-day internal hackathon, supported by Enterprise AI. It now contains a local employee prototype called **PFE Made Easy**.
 
 You do not need to understand every file. Start the app, make one small change, and build from there with your facilitator and GitHub Copilot.
 
@@ -41,29 +41,31 @@ The starter uses a WebAssembly frontend compiler so it works on managed Windows 
 
 ## 3. Try what already works
 
-- **Home:** a welcome page and links to the workspace.
-- **Dashboard:** fictional goals, accomplishments, and learning activities. Try filtering goals by their status.
-- **My notes:** write and remove a reflection. Refresh the browser to see that it stays saved there.
-- **About:** explains the example. Expand **Starter connection example** and click **Try a greeting** to call the Python backend.
+- **Dashboard:** view deterministic PFE completion, quick actions, and a local reminder schedule.
+- **Goals:** add, edit, complete, and delete fictional employee goals.
+- **Accomplishments:** capture evidence, associate it with a goal and PFE section, and filter the list.
+- **Refine:** create a clearly labeled local demo suggestion and choose whether to use it.
+- **History:** review local activity and locked submitted versions.
+- **PFE Draft:** prepare content from included evidence, edit it, save a draft, and simulate submission.
 
-The SaskTel logo and styling are included. The name **My App**, words, colors, and example content are yours to change.
+The SaskTel logo and styling are included. The words, colors, and fictional examples remain easy to change.
 
 ### What is an example, and what is saved?
 
 | Part | How it works today |
 | --- | --- |
-| Dashboard records | Fictional, read-only examples in a JavaScript file. They are not employee records from a live system. |
-| Notes | Saved in this browser only. They survive refresh, but are not shared with teammates or saved by the backend. Clearing browser data can remove them. |
+| PFE workspace | Fictional starter records plus changes saved in this browser only. They survive refresh, but are not shared with teammates or saved by the backend. Clearing browser data can remove them. |
+| Reminder and submission | Local workflow demonstrations. No email is sent and no manager is notified. |
 | Demo profile | A fictional name on screen. There is no real sign-in. |
 | Backend | A working greeting and health check. There is no database or backend save flow yet. |
-| AI assistance inside the app | Not connected yet. Your facilitator can help add Foundry later. |
+| Refine suggestions | Deterministic local wording rules, clearly labeled as a demo. No AI service is connected. |
 
 Use fictional information throughout the hackathon. Appraisal forms, manager workflows, real authentication, and shared storage are features your team can discuss—not finished functionality in this starter.
 
 ## 4. Make your first change
 
 1. Open [frontend/src/appConfig.js](frontend/src/appConfig.js) in VS Code.
-2. Change **My App** to your team's chosen app name.
+2. Change the PFE app tagline or fictional display name.
 3. Save the file.
 4. Look at the browser. The name updates automatically.
 
@@ -116,17 +118,18 @@ A person clicks something in the browser
        React displays the result
 ```
 
-The greeting example shows this complete connection. Notes currently use browser storage instead. For a feature that must save shared data or call AI, agree the storage/service choice with your facilitator first. Keep service credentials out of the frontend.
+The backend health and greeting routes remain as development examples. PFE data uses browser storage and is not sent to FastAPI. For a feature that must save shared data or call AI, agree the storage/service choice with your facilitator first. Keep service credentials out of the frontend.
 
 ## 7. Find the right file
 
 | I want to… | Start here |
 | --- | --- |
 | Change the app name or welcome text | [appConfig.js](frontend/src/appConfig.js) |
-| Change navigation, Home, or About | [App.jsx](frontend/src/App.jsx) |
+| Change employee navigation | [App.jsx](frontend/src/App.jsx) |
 | Change the dashboard layout | [Dashboard.jsx](frontend/src/pages/Dashboard.jsx) |
-| Change fictional goals and activities | [workspace.js](frontend/src/data/workspace.js) |
-| Change notes and reflections | [Notes.jsx](frontend/src/components/Notes.jsx) |
+| Change fictional starting records | [pfeDefaults.js](frontend/src/data/pfeDefaults.js) |
+| Change goals or accomplishments | [pages](frontend/src/pages/) |
+| Change local save behavior | [usePfeWorkspace.js](frontend/src/usePfeWorkspace.js) |
 | Change colors and spacing | [styles.css](frontend/src/styles.css) |
 | Find the logo | [assets](frontend/src/assets/) |
 | Send a request from the screen | [api.js](frontend/src/api.js) |

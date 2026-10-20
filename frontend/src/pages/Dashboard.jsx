@@ -1,147 +1,315 @@
 import { useState } from "react";
 import Card from "../components/Card";
-import { goals, accomplishments, development } from "../data/workspace";
+import PageHeading from "../components/PageHeading";
+import {
+  calculateProgress,
+  currentNextReminder,
+  formatDate,
+  nextReminderDate,
+} from "../pfeUtils";
 
-export default function Dashboard({ navigate }) {
-  const [filter, setFilter] = useState("all");
-  const shownGoals = goals.filter(
-    (goal) =>
-      filter === "all" ||
-      (filter === "completed" ? goal.progress === 100 : goal.progress < 100),
+const blankReminder = {
+  enabled: true,
+  frequency: "Monthly",
+  dayOfWeek: "5",
+  dayOfMonth: "20",
+  time: "14:00",
+  email: "",
+};
+
+function ReminderForm({ workspace, commit, onClose }) {
+  const [form, setForm] = useState(
+    workspace.reminder || {
+      ...blankReminder,
+      email: workspace.profile.email,
+    },
   );
+  const [error, setError] = useState("");
+
+  function update(field, value) {
+    setForm((current) => ({ ...current, [field]: value }));
+  }
+
+  function save(event) {
+    event.preventDefault();
+    if (!form.email.trim() || !form.email.includes("@")) {
+      setError("Enter a valid demo email address.");
+      return;
+    }
+    const reminder = {
+      ...form,
+      email: form.email.trim(),
+      nextRun: nextReminderDate(form),
+    };
+    if (
+      commit(
+        (current) => ({ ...current, reminder }),
+        {
+          action: workspace.reminder
+            ? "Reminder updated"
+            : "Reminder configured",
+          entityType: "reminder",
+          entityId: "employee-reminder",
+        },
+      )
+    ) {
+      onClose();
+    }
+  }
+
+  function remove() {
+    if (!window.confirm("Delete this local reminder configuration?")) return;
+    if (
+      commit(
+        (current) => ({ ...current, reminder: null }),
+        {
+          action: "Reminder deleted",
+          entityType: "reminder",
+          entityId: "employee-reminder",
+        },
+      )
+    ) {
+      onClose();
+    }
+  }
+
+  const usesWeekday = ["Weekly", "Biweekly"].includes(form.frequency);
+
   return (
-    <>
-      <div className="page-heading">
-        <div>
-          <p className="eyebrow">PERFORMANCE & DEVELOPMENT</p>
-          <h1>
-            My dashboard<span className="accent">.</span>
-          </h1>
-          <p>A starting view of your goals, contributions, and learning.</p>
-        </div>
-        <button className="primary" onClick={() => navigate("notes")}>
-          Capture a reflection <span aria-hidden="true">↗</span>
+    <Card className="form-card">
+      <div className="section-heading">
+        <h2>Reminder configuration</h2>
+        <button className="text-button" type="button" onClick={onClose}>
+          Close
         </button>
       </div>
+      <form onSubmit={save}>
+        <label className="checkbox-row">
+          <input
+            type="checkbox"
+            checked={form.enabled}
+            onChange={(event) => update("enabled", event.target.checked)}
+          />
+          Enable this reminder
+        </label>
+        <div className="form-grid">
+          <label>
+            Frequency
+            <select
+              value={form.frequency}
+              onChange={(event) => update("frequency", event.target.value)}
+            >
+              <option>Weekly</option>
+              <option>Biweekly</option>
+              <option>Monthly</option>
+              <option>Quarterly</option>
+            </select>
+          </label>
+          {usesWeekday ? (
+            <label>
+              Day
+              <select
+                value={form.dayOfWeek}
+                onChange={(event) => update("dayOfWeek", event.target.value)}
+              >
+                <option value="1">Monday</option>
+                <option value="2">Tuesday</option>
+                <option value="3">Wednesday</option>
+                <option value="4">Thursday</option>
+                <option value="5">Friday</option>
+              </select>
+            </label>
+          ) : (
+            <label>
+              Day of month
+              <input
+                type="number"
+                min="1"
+                max="28"
+                value={form.dayOfMonth}
+                onChange={(event) => update("dayOfMonth", event.target.value)}
+              />
+            </label>
+          )}
+          <label>
+            Time
+            <input
+              type="time"
+              value={form.time}
+              onChange={(event) => update("time", event.target.value)}
+              required
+            />
+          </label>
+          <label>
+            Demo email
+            <input
+              type="email"
+              value={form.email}
+              onChange={(event) => update("email", event.target.value)}
+              required
+            />
+          </label>
+        </div>
+        {error && (
+          <p className="field-error" role="alert">
+            {error}
+          </p>
+        )}
+        <p className="small">
+          This saves a schedule for the demo. No email is sent.
+        </p>
+        <div className="button-row">
+          <button className="primary">Save reminder</button>
+          {workspace.reminder && (
+            <button className="danger-button" type="button" onClick={remove}>
+              Delete reminder
+            </button>
+          )}
+        </div>
+      </form>
+    </Card>
+  );
+}
+
+export default function Dashboard({ workspace, commit, navigate }) {
+  const [showReminder, setShowReminder] = useState(false);
+  const progress = calculateProgress(workspace);
+  const reminderDate = workspace.reminder?.enabled
+    ? currentNextReminder(workspace.reminder)
+    : null;
+  const latestSubmission = workspace.submissions[0];
+  const status = latestSubmission
+    ? workspace.draft.status === "Draft"
+      ? "New Revision"
+      : "Submitted to Manager"
+    : workspace.draft.status;
+
+  return (
+    <>
+      <PageHeading
+        eyebrow={`PFE ${workspace.cycle.label}`}
+        title={`Welcome, ${workspace.profile.firstName}`}
+        description="Capture evidence throughout the year and prepare your employee draft."
+        action={
+          <button
+            className="primary"
+            onClick={() => navigate("accomplishments")}
+          >
+            + Add accomplishment
+          </button>
+        }
+      />
       <div className="sample-notice">
-        <strong>Fictional example data</strong>
+        <strong>Fictional local demo</strong>
         <span>
-          These records illustrate a possible workspace. Your team decides what
-          to build.
+          Data stays in this browser. There is no sign-in, shared storage, or
+          manager notification.
         </span>
       </div>
-      <div className="summary-grid">
+      <div className="summary-grid summary-grid-four">
         <Card>
-          <span className="metric-label">Active goals</span>
-          <strong className="metric-value">
-            {goals.filter((goal) => goal.progress < 100).length}
-          </strong>
-          <span className="muted">Areas to keep moving forward</span>
+          <span className="metric-label">PFE status</span>
+          <strong className="metric-text">{status}</strong>
+          <span className="muted">
+            Last updated {formatDate(workspace.updatedAt)}
+          </span>
+        </Card>
+        <Card>
+          <span className="metric-label">Completion progress</span>
+          <strong className="metric-value">{progress.percent}%</strong>
+          <span className="muted">Preparation only, not performance</span>
+        </Card>
+        <Card>
+          <span className="metric-label">Goals</span>
+          <strong className="metric-value">{workspace.goals.length}</strong>
+          <span className="muted">
+            {workspace.goals.filter((goal) => goal.status === "Active").length}{" "}
+            active
+          </span>
         </Card>
         <Card>
           <span className="metric-label">Accomplishments</span>
-          <strong className="metric-value">{accomplishments.length}</strong>
-          <span className="muted">Contributions worth remembering</span>
-        </Card>
-        <Card>
-          <span className="metric-label">Development activities</span>
-          <strong className="metric-value">{development.length}</strong>
-          <span className="muted">Opportunities to learn and grow</span>
+          <strong className="metric-value">
+            {workspace.accomplishments.length}
+          </strong>
+          <span className="muted">Evidence captured this cycle</span>
         </Card>
       </div>
       <div className="dashboard-layout">
-        <section aria-labelledby="goals-title">
+        <Card>
           <div className="section-heading">
-            <h2 id="goals-title">My goals</h2>
-            <label className="filter-label">
-              Show{" "}
-              <select
-                value={filter}
-                onChange={(event) => setFilter(event.target.value)}
-              >
-                <option value="all">All goals</option>
-                <option value="active">In progress</option>
-                <option value="completed">Completed</option>
-              </select>
-            </label>
+            <h2>What contributes to completion</h2>
+            <strong>{progress.percent}%</strong>
           </div>
-          <div className="goal-list">
-            {shownGoals.map((goal) => (
-              <Card key={goal.id}>
-                <div className="goal-header">
-                  <span className="eyebrow">{goal.category}</span>
-                  <span
-                    className={`status-badge ${goal.progress === 100 ? "complete" : ""}`}
-                  >
-                    {goal.progress === 100 ? "Completed" : "In progress"}
-                  </span>
-                </div>
-                <h3>{goal.title}</h3>
-                <div className="progress-label">
-                  <span>Example progress</span>
-                  <strong>{goal.progress}%</strong>
-                </div>
-                <progress
-                  value={goal.progress}
-                  max="100"
-                  aria-label={`${goal.title} example progress`}
-                />
-                <p className="goal-next">
-                  <strong>Next step:</strong> {goal.nextStep}
-                </p>
-              </Card>
+          <progress
+            value={progress.percent}
+            max="100"
+            aria-label={`${progress.percent}% PFE completion`}
+          />
+          <div className="milestone-list">
+            {progress.milestones.map((item) => (
+              <div className="milestone-row" key={item.label}>
+                <span aria-hidden="true">{item.complete ? "✓" : "○"}</span>
+                <span>{item.label}</span>
+                <strong>{item.weight}%</strong>
+              </div>
             ))}
           </div>
-        </section>
+        </Card>
         <div className="dashboard-side">
           <Card>
             <div className="section-heading">
-              <h2>My development</h2>
+              <h2>Reminder</h2>
+              <span
+                className={`status-badge ${workspace.reminder?.enabled ? "complete" : ""}`}
+              >
+                {workspace.reminder?.enabled ? "Enabled" : "Not scheduled"}
+              </span>
             </div>
-            {development.map((item) => (
-              <div className="development-row" key={item.id}>
-                <span className="muted">{item.type}</span>
-                <h3>{item.title}</h3>
-                <span className="status-badge">{item.status}</span>
-              </div>
-            ))}
-          </Card>
-          <Card className="reflection-card">
-            <p className="eyebrow">A MOMENT TO REFLECT</p>
-            <h2>What made a difference?</h2>
-            <p>
-              Think about a contribution, what you learned, or where you would
-              like support.
-            </p>
-            <button className="text-button" onClick={() => navigate("notes")}>
-              Write a reflection <span aria-hidden="true">→</span>
+            {workspace.reminder ? (
+              <>
+                <p>
+                  {workspace.reminder.frequency} at {workspace.reminder.time}
+                </p>
+                <p className="small">
+                  Next: {formatDate(reminderDate, { includeTime: true })}
+                </p>
+              </>
+            ) : (
+              <p>
+                Set a local prompt to remember to capture accomplishments.
+              </p>
+            )}
+            <button
+              className="text-button"
+              onClick={() => setShowReminder(true)}
+            >
+              {workspace.reminder ? "Change reminder" : "Schedule reminder"}{" "}
+              <span aria-hidden="true">→</span>
             </button>
+          </Card>
+          <Card>
+            <h2>Quick actions</h2>
+            <div className="quick-actions">
+              <button onClick={() => navigate("goals")}>+ Add goal</button>
+              <button onClick={() => navigate("accomplishments")}>
+                + Add accomplishment
+              </button>
+              <button onClick={() => navigate("refine")}>Refine writing</button>
+              <button onClick={() => navigate("draft")}>View draft</button>
+            </div>
           </Card>
         </div>
       </div>
-      <section
-        className="accomplishments-section"
-        aria-labelledby="accomplishments-title"
-      >
-        <div className="section-heading">
-          <h2 id="accomplishments-title">Recent accomplishments</h2>
-          <span className="muted">Fictional examples</span>
+      {showReminder && (
+        <div className="inline-panel">
+          <ReminderForm
+            workspace={workspace}
+            commit={commit}
+            onClose={() => setShowReminder(false)}
+          />
         </div>
-        <Card>
-          {accomplishments.map((item) => (
-            <div key={item.id} className="accomplishment-row">
-              <span className="accomplishment-mark" aria-hidden="true">
-                ✓
-              </span>
-              <div>
-                <span className="eyebrow">{item.category}</span>
-                <h3>{item.title}</h3>
-                <p>{item.detail}</p>
-              </div>
-            </div>
-          ))}
-        </Card>
-      </section>
+      )}
     </>
   );
 }
