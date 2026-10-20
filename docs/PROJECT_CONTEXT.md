@@ -32,7 +32,7 @@ Fill these in together; ask the participant rather than inventing answers.
 - Who are we helping? A fictional employee preparing their annual PFE.
 - What is the one journey we will demonstrate? Capture goals and accomplishments throughout the year, prepare a draft, and create a simulated submitted version.
 - What does a successful demo show? Saved local evidence contributes to transparent completion progress and an employee-controlled draft.
-- Which features are intentionally deferred? Real sign-in/authorization, manager/admin interfaces, shared storage, real notifications, Foundry/AI, source connectors, uploads, and cloud deployment.
+- Which features are intentionally deferred? Real sign-in/authorization, real manager workflows or cross-user data, shared storage, real notifications and calendar invites, Foundry/AI, source connectors, uploads, and cloud deployment.
 
 ## Completed prototype features
 
@@ -44,12 +44,16 @@ Fill these in together; ask the participant rather than inventing answers.
 - Evidence-grounded editable draft, Save as Draft, simulated locked submission, and new revision workflow.
 - Document-style employee PFE draft with general information and matching section headings; included accomplishments appear automatically in their selected draft section. Manager ratings and decisions remain out of scope.
 - Submitted-version and activity history.
+- Fictional Manager demo with team/evidence views, review queue and separate sample feedback, role-filtered candidate goals, and a meeting preview. All Manager demo changes reset on refresh and are not shared.
+- Shared header notification dropdown shows local workspace guidance on employee pages and the fictional sample evidence awaiting review on the Manager demo. The badge reflects the displayed item count; clicking a Manager item opens the sample review queue. This is in-app demo UI only, not a notification service.
 - API greeting and health endpoint remain available as backend examples.
 - Windows setup/start helpers, beginner guide, and optional deployment files.
 
 ## Prototype limitations
 
 PFE data is available only in the same browser and origin. Clearing browser data removes it, and data does not move between localhost, a deployed URL, devices, or users. “Submitted to Manager” is a local workflow simulation and sends nothing. Reminder schedules send no email. Source labels do not connect to external systems. The demo profile is not authentication, so this prototype must not contain real employee information.
+
+The Manager demo uses separate fictional sample data. Its review actions and goal edits exist only in component state and reset on refresh; they do not change employee data or create real approvals. The meeting planner prepares a preview but does not connect to Teams/Outlook or send invitations. Its sample manager identity is not authentication or authorization. The header notification dropdown is also local UI: employee items reflect browser-local workspace state, Manager items reflect fictional sample evidence, and no external alerts are sent.
 
 ## Repository cleanup
 

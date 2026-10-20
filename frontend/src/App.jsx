@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { appConfig } from "./appConfig";
+import NotificationDropdown from "./components/NotificationDropdown";
 import SaskTelLogo from "./components/SaskTelLogo";
 import usePfeWorkspace from "./usePfeWorkspace";
 import Accomplishments from "./pages/Accomplishments";
@@ -7,6 +8,7 @@ import Dashboard from "./pages/Dashboard";
 import Draft from "./pages/Draft";
 import Goals from "./pages/Goals";
 import History from "./pages/History";
+import Manager from "./pages/Manager";
 import Refine from "./pages/Refine";
 
 const pages = [
@@ -16,10 +18,13 @@ const pages = [
   { id: "refine", label: "Refine", icon: "✎" },
   { id: "history", label: "History", icon: "◷" },
   { id: "draft", label: "PFE Draft", icon: "▤" },
+  { id: "manager", label: "Manager demo", icon: "▣" },
 ];
 
 export default function App() {
   const [page, setPage] = useState("dashboard");
+  const [managerNotifications, setManagerNotifications] = useState([]);
+  const [managerQueueRequest, setManagerQueueRequest] = useState(0);
   const { workspace, storageMessage, commit } = usePfeWorkspace();
 
   useEffect(() => {
@@ -27,6 +32,15 @@ export default function App() {
   }, []);
 
   const pageProps = { workspace, commit, navigate: setPage };
+
+  function openNotification(destination) {
+    if (destination === "manager-review-queue") {
+      setManagerQueueRequest((request) => request + 1);
+      setPage("manager");
+      return;
+    }
+    setPage(destination);
+  }
 
   return (
     <div className="app-shell">
@@ -41,8 +55,8 @@ export default function App() {
           {appConfig.name}
           <span>Employee workspace</span>
         </div>
-        <div className="workspace-label">MY PFE</div>
-        <nav aria-label="Employee navigation">
+        <div className="workspace-label">WORKSPACE</div>
+        <nav aria-label="Workspace navigation">
           {pages.map((item) => (
             <button
               key={item.id}
@@ -81,6 +95,12 @@ export default function App() {
           <span className="topbar-label">
             <span className="green-dot" /> PFE {workspace.cycle.label}
           </span>
+          <NotificationDropdown
+            isManager={page === "manager"}
+            managerNotifications={managerNotifications}
+            workspace={workspace}
+            navigate={openNotification}
+          />
         </header>
         <main id="main" tabIndex={-1}>
           {storageMessage && (
@@ -96,6 +116,12 @@ export default function App() {
           {page === "refine" && <Refine {...pageProps} />}
           {page === "history" && <History {...pageProps} />}
           {page === "draft" && <Draft {...pageProps} />}
+          {page === "manager" && (
+            <Manager
+              onNotificationsChange={setManagerNotifications}
+              reviewQueueRequest={managerQueueRequest}
+            />
+          )}
         </main>
         <footer>
           {appConfig.name}
