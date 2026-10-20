@@ -18,7 +18,7 @@ Enterprise AI facilitates a two-day internal hackathon for ten participants in t
 
 ## How it currently works
 
-React uses Vite for local development. `/api` requests go through Vite to FastAPI. For deployment, a multi-stage Dockerfile builds React and copies it into the Python image. FastAPI serves both the built frontend and API on port 8000. There is no database. Notes persist only in the current browser's localStorage and are not sent to FastAPI.
+React uses a small WebAssembly-based Node build server for local development, avoiding downloaded native executables that managed Windows policies may block. `/api` requests go through this server to FastAPI. `npm run dev`, `npm run build`, and `npm run preview` use the same tooling without batch files or Vite. For deployment, a multi-stage Dockerfile builds React and copies it into the Python image. FastAPI serves both the built frontend and API on port 8000. There is no database. Notes persist only in the current browser's localStorage and are not sent to FastAPI.
 
 ## Decisions for your team
 

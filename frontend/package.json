@@ -4,9 +4,9 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+    "dev": "node tooling.mjs dev",
+    "build": "node tooling.mjs build",
+    "preview": "node tooling.mjs preview"
   },
   "engines": {
     "node": ">=20.18.0"
@@ -16,7 +16,6 @@
     "react-dom": "18.3.1"
   },
   "devDependencies": {
-    "vite": "6.4.4",
-    "@vitejs/plugin-react": "4.7.0"
+    "esbuild-wasm": "^0.25.12"
   }
 }

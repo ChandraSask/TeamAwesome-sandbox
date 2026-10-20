@@ -18,17 +18,24 @@ Your desktop needs **Node.js 22**, **Python 3.12 with the Python launcher**, **G
 
 ## 2. Open the app
 
-| File to double-click | When to use it | What it does |
-| --- | --- | --- |
-| **SETUP.bat** | Once when you first get the starter | Installs the packages the app needs. Wait until it says “Ready!”. |
-| **START.bat** | Each time you want to build | Starts the app and opens your browser. |
-| **CHECK-SETUP.bat** | After setup, or when something goes wrong | Checks installed tools and, if the app is running, the connection between its parts. |
+Open **Terminal → New Terminal** in VS Code. Run these setup commands once from the repository folder:
 
-Keep the START window open while you work. Your app opens at **http://127.0.0.1:5173**. This address means the app is running on your own virtual desktop.
+```powershell
+py -3.12 -m venv backend\.venv
+backend\.venv\Scripts\python.exe -m pip install -r backend\requirements-dev.txt
+npm ci --prefix frontend
+```
 
-To stop the app, press **Ctrl+C** in the START window. To start again, double-click **START.bat**.
+Start the app whenever you want to work:
 
-If an error appears, leave the window open and show it to your facilitator. Do not keep opening more copies. You do not need VS Code's Live Server extension—the starter already includes a live development server.
+```powershell
+cd frontend
+npm run dev
+```
+
+Keep this terminal open and visit **http://127.0.0.1:5173**. To stop the app, return to the terminal and press **Ctrl+C**.
+
+The starter uses a WebAssembly frontend compiler so it works on managed Windows computers that block downloaded native executables. If an error appears, leave it visible and show it to your facilitator. Do not start extra copies. You do not need VS Code's Live Server extension.
 
 ## 3. Try what already works
 
@@ -86,7 +93,7 @@ For a five-person team, one person can drive the code while others define the jo
 | --- | --- | --- |
 | **React + JavaScript** | Builds the screens and responds to clicks and typing | `frontend/src/` |
 | **CSS** | Controls colors, spacing, and layout | `frontend/src/styles.css` |
-| **Vite** | Runs the live preview and refreshes it as you save changes | Started automatically by START.bat |
+| **WebAssembly build tools** | Compile React without running downloaded native executables | `frontend/tooling.mjs` through npm commands |
 | **Python + FastAPI** | Handles requests behind the scenes; this is where future shared-data or AI connections belong | `backend/app/` |
 | **Git + GitHub** | Keeps versions of the code and lets your team share changes | VS Code Source Control and your team repository |
 | **GitHub Copilot** | Helps you understand and change the code | VS Code; it is separate from an AI feature inside your app |

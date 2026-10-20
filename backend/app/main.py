@@ -12,7 +12,7 @@ app.include_router(router, prefix="/api")
 def health() -> dict[str, str]:
     return {"status": "ok"}
 
-# Vite proxies /api locally. In Azure, both UI and API use this one server.
+# The frontend development server proxies /api locally. In Azure, this server handles both UI and API.
 # Register API routes above the static mount so API requests stay API requests.
 static_dir = Path(os.environ.get("STATIC_DIR", Path(__file__).resolve().parents[2] / "frontend" / "dist"))
 if static_dir.is_dir():

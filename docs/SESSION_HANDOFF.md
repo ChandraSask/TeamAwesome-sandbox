@@ -9,13 +9,13 @@ Prepare the starter for nontechnical hackathon participants.
 SaskTel-styled Home, Dashboard, My notes, and About; fictional dashboard filters; browser-local reflections; FastAPI greeting; Windows startup helpers; setup checker and participant guidance.
 
 ## Current limitations
-Windows scripts and source packaging still need testing on the actual participant VM. Azure has not been deployed. Notes are browser-local. No backend save example yet; storage choice is pending.
+Azure has not been deployed. Notes are browser-local. No backend save example exists yet; storage choice is pending. The lightweight development server requires a manual browser refresh after frontend edits.
 
 ## Last verification
-Frontend build passed; dashboard filtering and reflection navigation checked in the browser. The new setup checker passed locally with running servers. Windows execution is not verified.
+The starter now uses WebAssembly frontend tooling rather than Vite/native esbuild, so managed Windows AppLocker does not block development or production builds. On the current Windows VM, clean frontend install/build passed; development and production previews served UI assets and proxied the API successfully; and both backend tests passed. The setup checker correctly reports that this VM has Python 3.11 rather than the starter's required Python 3.12.
 
 ## Next step
-Choose storage for the backend save example and complete a clean Windows VM dry run.
+Complete a clean participant-account dry run and choose storage for the backend save example.
 
 ## Team work in progress
 No participant feature selected yet. Add the current feature, files touched, blocker, and next action here when work begins.

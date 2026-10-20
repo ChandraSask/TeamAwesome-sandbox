@@ -1,8 +1,9 @@
 # Starter verification
 
-Checked during starter preparation on macOS:
+Checked during starter preparation on macOS and the managed Windows VM:
 
-- Clean frontend dependency install and production build passed.
+- Clean frontend dependency install and WebAssembly production build passed on Windows without invoking blocked native executables.
+- Development and production previews served the React UI and proxied successful API requests on Windows.
 - npm audit reported no known vulnerabilities in the installed frontend dependency tree.
 - Two backend tests passed: health/greeting, name validation, and unknown API route behavior.
 - Python dependency consistency check passed.
@@ -15,7 +16,7 @@ Checked during starter preparation on macOS:
 
 Still required on the facilitator's environment:
 
-- Run SETUP.bat and START.bat on the actual Windows 11 VM, including corporate package access and Ctrl+C cleanup.
+- Install the required Python 3.12 runtime and repeat the full README setup from a clean participant account; the current Windows verification used Python 3.11 because 3.12 is not installed.
 - Run the PowerShell source packaging helper and inspect the ZIP.
 - Build the Docker image (Docker is unavailable on the preparation machine).
 - Configure the existing Azure Container App/registry, build/deploy from Cloud Shell, and verify the revision and greeting.

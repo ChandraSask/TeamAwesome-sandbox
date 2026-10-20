@@ -18,7 +18,7 @@ def report(label, ok, advice):
         failed.append(label)
 
 print('Hackathon workspace check — this does not change your files.\n')
-report('Python 3.12', sys.version_info[:2] == (3, 12), 'Ask your facilitator to install Python 3.12, then run SETUP.bat.')
+report('Python 3.12', sys.version_info[:2] == (3, 12), 'Ask your facilitator to install Python 3.12, then follow the setup commands in README.md.')
 node = shutil.which('node')
 node_ok = False
 if node:
@@ -29,16 +29,16 @@ if node:
     except (OSError, ValueError, subprocess.SubprocessError):
         pass
 report('Node.js available and supported', node_ok, 'Ask your facilitator to install Node.js 22 LTS.')
-report('Frontend dependencies', (ROOT / 'frontend/node_modules/vite/bin/vite.js').is_file(), 'Run SETUP.bat from the repository folder.')
-report('Backend dependencies', all(importlib.util.find_spec(name) for name in ('fastapi', 'uvicorn')), 'Run SETUP.bat; this check should use backend/.venv Python.')
+report('Frontend dependencies', (ROOT / 'frontend/node_modules/esbuild-wasm/esbuild.wasm').is_file(), 'Run npm ci in the frontend folder.')
+report('Backend dependencies', all(importlib.util.find_spec(name) for name in ('fastapi', 'uvicorn')), 'Install backend/requirements.txt; this check should use backend/.venv Python.')
 report('Git available for checkpoints', shutil.which('git') is not None, 'Ask your facilitator to install Git before creating checkpoints.')
-print('\nServer checks: a stopped app is normal before START.bat.')
+print('\nServer checks: a stopped app is normal before npm run dev.')
 for port, route, label in [(8000, '/healthz', 'Backend'), (5173, '/api/hello?name=Setup', 'Frontend-to-backend connection')]:
     with socket.socket() as sock:
         sock.settimeout(1)
         listening = sock.connect_ex(('127.0.0.1', port)) == 0
     if not listening:
-        print(f'INFO: {label} is not running. Open START.bat, then run this check again.')
+        print(f'INFO: {label} is not running. Run npm run dev in frontend, then run this check again.')
         continue
     try:
         with urllib.request.urlopen(f'http://127.0.0.1:{port}{route}', timeout=5) as response:

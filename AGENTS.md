@@ -19,7 +19,7 @@ Read `docs/PROJECT_CONTEXT.md` before making changes. This is a two-day internal
 - Easy text edits: `frontend/src/appConfig.js`; layout: `frontend/src/App.jsx`; colors: `frontend/src/styles.css`.
 - Reusable UI: `frontend/src/components/`; browser API requests: `frontend/src/api.js`.
 - API routes: `backend/app/routes/`; register them in `backend/app/main.py` before the static file mount.
-- Development uses Vite on 5173 proxying `/api` to FastAPI on 8000. Deployment serves the built frontend and API from one container on 8000.
+- Development uses the WebAssembly-based `frontend/tooling.mjs` server on 5173, proxying `/api` to FastAPI on 8000. Deployment serves the built frontend and API from one container on 8000.
 - Notes use browser localStorage only. Explain this limitation if modifying them.
 - Build the frontend with `npm ci && npm run build` in `frontend/`.
 - Backend checks: install `backend/requirements-dev.txt`, then run `python -m pytest` from `backend/` using its virtual environment.
@@ -29,4 +29,4 @@ Read `docs/PROJECT_CONTEXT.md` before making changes. This is a two-day internal
 
 ## Participant build workflow
 
-Follow `docs/BUILD_PLAYBOOK.md` for feature work. Read and update `docs/SESSION_HANDOFF.md` at session boundaries. Help participants use `docs/CHECKPOINTS.md` before larger edits; never discard work automatically. `CHECK-SETUP.bat` runs the read-only setup checker.
+Follow `docs/BUILD_PLAYBOOK.md` for feature work. Read and update `docs/SESSION_HANDOFF.md` at session boundaries. Help participants use `docs/CHECKPOINTS.md` before larger edits; never discard work automatically. `backend/.venv/Scripts/python.exe scripts/check_setup.py` runs the read-only setup checker on Windows.

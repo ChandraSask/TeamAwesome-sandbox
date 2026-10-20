@@ -44,7 +44,7 @@ def main():
         print('Node.js is missing. Ask your facilitator to run setup.')
         return 1
     options = {'creationflags': subprocess.CREATE_NEW_PROCESS_GROUP} if os.name == 'nt' else {'start_new_session': True}
-    commands = [([sys.executable, '-m', 'uvicorn', 'app.main:app', '--reload', '--host', '127.0.0.1', '--port', '8000'], ROOT / 'backend'), ([node, 'node_modules/vite/bin/vite.js'], ROOT / 'frontend')]
+    commands = [([node, 'tooling.mjs', 'dev'], ROOT / 'frontend')]
     try:
         for command, directory in commands:
             processes.append(subprocess.Popen(command, cwd=directory, **options))
@@ -66,7 +66,7 @@ def main():
         webbrowser.open('http://127.0.0.1:5173')
         while all(process.poll() is None for process in processes):
             time.sleep(0.5)
-        raise RuntimeError('A server stopped. Read the output above, then restart START.bat.')
+        raise RuntimeError('A server stopped. Read the output above, then run the start command again.')
     except KeyboardInterrupt:
         print('\nStopping your app…')
         return 0

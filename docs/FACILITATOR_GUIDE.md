@@ -9,20 +9,20 @@ On the actual Windows 11 VM image, install Node.js 22 LTS, Python 3.12 with the 
 Run this dry run using a participant account:
 
 1. Extract a clean copy into a writable folder (including a path with spaces).
-2. Run `SETUP.bat`, then `START.bat`.
-3. Confirm the browser opens and **Try a greeting** succeeds.
-4. Edit `appConfig.js` and confirm live updates.
+2. Run the setup commands in `README.md`, then run `npm run dev` from `frontend/`.
+3. Open the local URL and confirm **Try a greeting** succeeds.
+4. Edit `appConfig.js`, refresh, and confirm the update.
 5. Save a note, refresh, remove it, and confirm the empty state.
 6. Press Ctrl+C and confirm a second launch works without port conflicts.
-7. Confirm Copilot reads the repository instructions.
+7. Run the read-only setup checker and confirm Copilot reads the repository instructions.
 
-The scripts avoid PowerShell activation and execution-policy changes. If organizational policy blocks BAT or Python execution, resolve that through your VM administrator before the event.
+The frontend compiler is WebAssembly-based and does not execute downloaded native build binaries. The commands avoid PowerShell activation and execution-policy changes.
 
 ## Local architecture
 
 ```text
-Browser → Vite :5173 → /api proxy → FastAPI :8000
-              React                  Python routes
+Browser → WebAssembly dev server :5173 → /api proxy → FastAPI :8000
+              React                              Python routes
 
 Azure: Browser → Container App :8000 → FastAPI
                                       ├─ /api/*
@@ -30,7 +30,7 @@ Azure: Browser → Container App :8000 → FastAPI
                                       └─ built React files
 ```
 
-React and FastAPI are retained. Vite replaces the NEXUS-specific Webpack/module-federation build; plain CSS replaces the previous theme stack. One container keeps the day-two deployment small. No database, authentication, AI, or storage service is required by the starter.
+React and FastAPI are retained. A small WebAssembly-based Node script replaces native frontend build executables and the old NEXUS-specific Webpack/module-federation build; plain CSS replaces the previous theme stack. One container keeps the day-two deployment small. No database, authentication, AI, or storage service is required by the starter.
 
 ## Development on macOS/Linux
 

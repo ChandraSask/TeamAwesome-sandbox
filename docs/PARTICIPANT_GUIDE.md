@@ -2,9 +2,9 @@
 
 ## Start and stop
 
-Double-click `SETUP.bat` once, then `START.bat` whenever you want to work. Keep the launcher window open. To stop both services, press Ctrl+C in that window. Close the browser tab separately.
+Follow the one-time setup commands in `README.md`. Whenever you want to work, open VS Code's terminal, run `cd frontend`, then `npm run dev`. Keep the terminal open. To stop both services, press Ctrl+C there.
 
-The app is at http://127.0.0.1:5173. Save a React or CSS file to see changes immediately. Python changes restart the backend automatically.
+The app is at http://127.0.0.1:5173. Save a React or CSS file, then refresh the browser to see the change. Python changes restart the backend automatically.
 
 ## A first ten minutes
 
