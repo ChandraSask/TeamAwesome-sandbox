@@ -9,6 +9,7 @@ Enterprise AI facilitates a two-day internal hackathon for ten participants in t
 - Standalone React frontend and FastAPI backend. No NEXUS dependency.
 - SaskTel-branded corporate styling with the user-supplied logo and the product name **PFE Made Easy**.
 - A PFE-only employee workspace with Dashboard, Goals, Accomplishments, Refine, History, and PFE Draft.
+- Branded demo login with Employee, Manager, and Admin role selections. The username and password fields accept any entered details; this is not authentication or access control.
 - Fictional employee data and browser-local create/edit/delete workflows for goals and accomplishments.
 - Deterministic PFE completion progress that is never presented as a performance score.
 - Browser-local reminder configuration with no email delivery.
@@ -49,6 +50,7 @@ Fill these in together; ask the participant rather than inventing answers.
 - PFE Draft includes local zoom controls (70%–130%) with reset; zoom affects only the document preview.
 - Submitted-version and activity history.
 - Fictional Manager demo with team/evidence views, review queue and separate sample feedback, role-filtered candidate goals, and a meeting preview. All Manager demo changes reset on refresh and are not shared.
+- Demo login routes Employee to the six employee pages, Manager to the Manager demo, and Admin to a placeholder. Signing out returns to role selection. Credentials are not checked or saved; selecting a role does not restrict direct access or authorize data.
 - Shared header notification dropdown shows local workspace guidance on employee pages and the fictional sample evidence awaiting review on the Manager demo. The badge reflects the displayed item count; clicking a Manager item opens the sample review queue. This is in-app demo UI only, not a notification service.
 - API greeting and health endpoint remain available as backend examples.
 - Windows setup/start helpers, beginner guide, and optional deployment files.
@@ -58,6 +60,8 @@ Fill these in together; ask the participant rather than inventing answers.
 PFE data is available only in the same browser and origin. Clearing browser data removes it, and data does not move between localhost, a deployed URL, devices, or users. “Submitted to Manager” is a local workflow simulation and sends nothing. Manager comments have no manager-side source or editing workflow; the draft displays supplied comments read-only and otherwise says none were provided. Signature and policy acknowledgement workflows, manager ratings, and employment decisions are not collected. Reminder schedules send no email. Source labels do not connect to external systems. The demo profile is not authentication, so this prototype must not contain real employee information.
 
 The Manager demo uses separate fictional sample data. Its review actions and goal edits exist only in component state and reset on refresh; they do not change employee data or create real approvals. The meeting planner prepares a preview but does not connect to Teams/Outlook or send invitations. Its sample manager identity is not authentication or authorization. The header notification dropdown is also local UI: employee items reflect browser-local workspace state, Manager items reflect fictional sample evidence, and no external alerts are sent.
+
+The branded login is a navigation demo only. It accepts arbitrary non-empty username and password values and does not validate, store, or transmit them. Role-based navigation is not security or access control; all prototype data remains fictional and local.
 
 ## Repository cleanup
 

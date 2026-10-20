@@ -78,6 +78,7 @@ a {
   flex-direction: column;
   position: fixed;
   inset: 0 auto 0 0;
+  overflow-y: auto;
 }
 .brand {
   display: block;
@@ -2357,6 +2358,107 @@ summary:focus-visible {
 .manager-demo-banner strong {
   color: #006b92;
 }
+.login-screen {
+  display: grid;
+  place-items: center;
+  position: relative;
+  width: 100%;
+  max-width: none;
+  min-height: 100vh;
+  margin: 0;
+  padding: 24px 20px;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgb(0 126 174 / 10%), transparent 48%),
+    #f4f6f8;
+}
+.login-card {
+  width: min(100%, 420px);
+  padding: 30px 34px;
+  border: 1px solid var(--border);
+  border-top: 5px solid var(--accent);
+  border-radius: 8px;
+  background: white;
+  box-shadow: 0 16px 40px rgb(27 58 76 / 9%);
+}
+.login-card .sasktel-logo {
+  margin-bottom: 22px;
+}
+.login-card .eyebrow {
+  margin: 0 0 8px;
+  color: var(--accent-dark);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+.login-card h1 {
+  font-size: 29px;
+}
+.login-intro {
+  margin: 10px 0 18px;
+  font-size: 14px;
+}
+.login-form {
+  display: grid;
+  gap: 5px;
+}
+.login-form label {
+  margin: 2px 0 0;
+  color: #334a58;
+  font-size: 13px;
+  font-weight: 600;
+}
+.login-form input,
+.login-form select {
+  min-height: 42px;
+}
+.login-submit {
+  width: 100%;
+  margin-top: 10px;
+  padding: 11px 18px;
+}
+.login-demo-note {
+  margin: 16px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  font-size: 11px;
+}
+.login-footer {
+  position: absolute;
+  right: 20px;
+  bottom: 22px;
+  left: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  color: #6c7a84;
+  font-size: 11px;
+}
+.login-footer span {
+  color: #82909a;
+}
+.logout-button {
+  width: 100%;
+  margin-top: 15px;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: white;
+  color: #345264;
+  font-size: 12px;
+  font-weight: 600;
+}
+.logout-button:hover {
+  background: var(--accent-soft);
+}
+.admin-placeholder > .card {
+  max-width: 760px;
+  border-left: 4px solid var(--accent);
+}
+.admin-placeholder > .card h2 {
+  color: #264f62;
+}
+.admin-placeholder > .card p {
+  margin-bottom: 0;
+}
 @media (max-width: 1000px) {
   .dashboard-layout {
     grid-template-columns: 1fr;
@@ -2434,5 +2536,18 @@ summary:focus-visible {
   }
   .pfe-period-field {
     grid-column: auto;
+  }
+}
+@media (max-width: 520px) {
+  .login-screen {
+    padding: 20px 14px;
+  }
+  .login-card {
+    padding: 26px 24px;
+  }
+  .login-footer {
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
   }
 }
