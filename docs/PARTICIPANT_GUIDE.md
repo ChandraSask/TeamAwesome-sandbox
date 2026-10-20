@@ -13,7 +13,8 @@ The app is at http://127.0.0.1:5173. Save a React or CSS file, then refresh the 
 3. Change `--accent` and related colors in `frontend/src/styles.css` with Copilot's help.
 4. Open **Goals**, add a fictional goal, and refresh. The goal stays in this browser.
 5. Add an accomplishment, connect it to the goal, and view how Dashboard completion changes.
-6. Open **PFE Draft**. Included accomplishments appear automatically under their selected section; employee comments can be edited and saved there.
+6. Open **PFE Draft**. Included accomplishments appear automatically under their selected section. Use **Edit employee comments** in any section, then save or cancel. Use the draft-size controls to zoom in, zoom out, or reset the document preview. Manager comments are read-only; when none have been provided, the draft says so. Signatures, acknowledgements, and ratings are not collected in this prototype.
+7. On **Dashboard**, check the month-end countdown: green means at least 10 days remain, amber means 1–9 days, and red means month end is today. With fewer than 10 days left, the Reminder card and Reminder configuration show an in-app prompt with a shortcut to Accomplishments. The countdown uses this browser's local date, excluding today, and refreshes while the page is open. It does not send email or run in the background after the app closes. Saved demo schedules remain separate from this automatic prompt.
 
 ## Tell Copilot what you want
 

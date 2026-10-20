@@ -26,6 +26,19 @@ export function formatDate(value, options = {}) {
   }).format(new Date(safeValue));
 }
 
+export function monthEndCountdown(today = new Date()) {
+  const year = today.getFullYear();
+  const month = today.getMonth();
+  const lastDay = new Date(year, month + 1, 0).getDate();
+  const daysRemaining = lastDay - today.getDate();
+  return {
+    daysRemaining,
+    monthEnd: new Date(year, month, lastDay, 12).toISOString(),
+    reminderDue: daysRemaining < 10,
+    tone: daysRemaining === 0 ? "urgent" : daysRemaining < 10 ? "upcoming" : "on-track",
+  };
+}
+
 export function calculateProgress(workspace) {
   const included = workspace.accomplishments.filter(
     (item) => item.status === "Included",

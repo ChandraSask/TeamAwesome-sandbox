@@ -12,6 +12,7 @@ Enterprise AI facilitates a two-day internal hackathon for ten participants in t
 - Fictional employee data and browser-local create/edit/delete workflows for goals and accomplishments.
 - Deterministic PFE completion progress that is never presented as a performance score.
 - Browser-local reminder configuration with no email delivery.
+- Color-coded dashboard and automatic in-app month-end reminders when fewer than 10 calendar days remain; real email delivery remains deferred.
 - Deterministic, fact-preserving demo wording suggestions. No AI service is connected.
 - Browser-local draft saving, simulated submission snapshots, and editable new revisions.
 - Fictional demo profile and data. No real sign-in or authorization claims.
@@ -40,9 +41,12 @@ Fill these in together; ask the participant rather than inventing answers.
 - Versioned browser-local PFE store with fictional profile and 2026-2027 cycle data.
 - Goal and accomplishment create/edit/delete workflows, relationships, filters, validation, and activity history.
 - Deterministic completion dashboard and local reminder configuration.
+- Dashboard cards use distinct accent colors. The month-end countdown uses the browser's local calendar: green with 10 or more days left, amber with 1–9 days left, and red on the last day. Today is not counted as a remaining day. The dashboard and reminder configuration show matching in-app prompts independently of the saved demo schedule. The countdown refreshes every minute and when the window regains focus; it resets for the new month and does not run notifications while the app is closed.
 - Clearly labeled simulated refinement that requires employee acceptance.
 - Evidence-grounded editable draft, Save as Draft, simulated locked submission, and new revision workflow.
 - Document-style employee PFE draft with general information and matching section headings; included accomplishments appear automatically in their selected draft section. Manager ratings and decisions remain out of scope.
+- Section-by-section employee comments with explicit edit, save, and cancel controls; manager comments display read-only with an empty state when none are provided. Signatures and policy acknowledgements are identified but not collected.
+- PFE Draft includes local zoom controls (70%–130%) with reset; zoom affects only the document preview.
 - Submitted-version and activity history.
 - Fictional Manager demo with team/evidence views, review queue and separate sample feedback, role-filtered candidate goals, and a meeting preview. All Manager demo changes reset on refresh and are not shared.
 - Shared header notification dropdown shows local workspace guidance on employee pages and the fictional sample evidence awaiting review on the Manager demo. The badge reflects the displayed item count; clicking a Manager item opens the sample review queue. This is in-app demo UI only, not a notification service.
@@ -51,7 +55,7 @@ Fill these in together; ask the participant rather than inventing answers.
 
 ## Prototype limitations
 
-PFE data is available only in the same browser and origin. Clearing browser data removes it, and data does not move between localhost, a deployed URL, devices, or users. “Submitted to Manager” is a local workflow simulation and sends nothing. Reminder schedules send no email. Source labels do not connect to external systems. The demo profile is not authentication, so this prototype must not contain real employee information.
+PFE data is available only in the same browser and origin. Clearing browser data removes it, and data does not move between localhost, a deployed URL, devices, or users. “Submitted to Manager” is a local workflow simulation and sends nothing. Manager comments have no manager-side source or editing workflow; the draft displays supplied comments read-only and otherwise says none were provided. Signature and policy acknowledgement workflows, manager ratings, and employment decisions are not collected. Reminder schedules send no email. Source labels do not connect to external systems. The demo profile is not authentication, so this prototype must not contain real employee information.
 
 The Manager demo uses separate fictional sample data. Its review actions and goal edits exist only in component state and reset on refresh; they do not change employee data or create real approvals. The meeting planner prepares a preview but does not connect to Teams/Outlook or send invitations. Its sample manager identity is not authentication or authorization. The header notification dropdown is also local UI: employee items reflect browser-local workspace state, Manager items reflect fictional sample evidence, and no external alerts are sent.
 

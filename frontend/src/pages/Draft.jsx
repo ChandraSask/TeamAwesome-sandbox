@@ -1,13 +1,31 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Card from "../components/Card";
 import PageHeading from "../components/PageHeading";
 import SaskTelLogo from "../components/SaskTelLogo";
 import { formatDate } from "../pfeUtils";
 import { createId } from "../usePfeWorkspace";
 
+const valueThemes = [
+  "Honesty",
+  "Integrity",
+  "Respect",
+  "OneSaskTel Team",
+  "Think Big",
+  "Customer First",
+  "Focus on Experiences",
+  "Agility",
+];
+const MIN_DRAFT_ZOOM = 70;
+const MAX_DRAFT_ZOOM = 130;
+const DRAFT_ZOOM_STEP = 10;
+
 function EvidenceList({ evidence }) {
   if (evidence.length === 0) {
-    return <p className="pfe-no-evidence">No included evidence in this section yet.</p>;
+    return (
+      <p className="pfe-no-evidence">
+        No included evidence in this section yet.
+      </p>
+    );
   }
 
   return (
@@ -27,27 +45,75 @@ function EvidenceList({ evidence }) {
   );
 }
 
-function SectionInput({
-  id,
-  label,
-  value,
-  readOnly,
-  onChange,
-  placeholder = "Add your employee comments here.",
-}) {
+function EmployeeComments({ id, value, locked, onSave }) {
+  const [editing, setEditing] = useState(false);
+  const [text, setText] = useState(value);
+
+  useEffect(() => {
+    if (!editing) setText(value);
+  }, [editing, value]);
+
   return (
-    <label className="pfe-entry-field" htmlFor={id}>
-      <span>{label}</span>
-      <textarea
-        id={id}
-        className="pfe-entry-input"
-        value={value}
-        readOnly={readOnly}
-        maxLength="4000"
-        placeholder={placeholder}
-        onChange={(event) => onChange(event.target.value)}
-      />
-    </label>
+    <div className="pfe-comment-panel">
+      <div className="pfe-comment-heading">
+        <strong>Employee Comments</strong>
+        {!locked && !editing && (
+          <button
+            className="text-button"
+            type="button"
+            onClick={() => setEditing(true)}
+          >
+            Edit employee comments
+          </button>
+        )}
+      </div>
+      {editing && !locked ? (
+        <>
+          <label className="pfe-entry-field" htmlFor={id}>
+            <span className="sr-only">Edit employee comments</span>
+            <textarea
+              id={id}
+              className="pfe-entry-input"
+              value={text}
+              maxLength="4000"
+              placeholder="Add your employee comments here."
+              onChange={(event) => setText(event.target.value)}
+            />
+          </label>
+          <div className="pfe-comment-actions">
+            <button
+              className="primary"
+              type="button"
+              onClick={() => {
+                if (onSave(text)) setEditing(false);
+              }}
+            >
+              Save comments
+            </button>
+            <button
+              className="secondary-button"
+              type="button"
+              onClick={() => setEditing(false)}
+            >
+              Cancel
+            </button>
+          </div>
+        </>
+      ) : (
+        <p className="pfe-comment-text">
+          {value || "No employee comments added."}
+        </p>
+      )}
+    </div>
+  );
+}
+
+function ManagerComments({ comments = "" }) {
+  return (
+    <div className="pfe-manager-comments" aria-label="Read-only manager comments">
+      <strong>Manager Comments · Read only</strong>
+      <p>{comments || "No manager comments provided."}</p>
+    </div>
   );
 }
 
@@ -70,6 +136,7 @@ export default function Draft({ workspace, commit }) {
   const [finalReview, setFinalReview] = useState(
     workspace.draft.finalReviewComplete,
   );
+  const [draftZoom, setDraftZoom] = useState(100);
   const [message, setMessage] = useState("");
   const [showSubmit, setShowSubmit] = useState(false);
 
@@ -88,14 +155,41 @@ export default function Draft({ workspace, commit }) {
     );
   }
 
-  function updateSection(key, value) {
-    setSections((current) => ({ ...current, [key]: value }));
-    setFinalReview(false);
-  }
-
   function updateProfile(field, value) {
     setProfileDetails((current) => ({ ...current, [field]: value }));
     setFinalReview(false);
+  }
+
+  function saveEmployeeComments(key, value) {
+    const nextSections = { ...sections, [key]: value };
+    const evidenceIds = includedEvidence.map((item) => item.id);
+    if (
+      commit(
+        (current, timestamp) => ({
+          ...current,
+          profile: { ...current.profile, ...profileDetails },
+          draft: {
+            ...current.draft,
+            status: "Draft",
+            sections: nextSections,
+            evidenceIds,
+            finalReviewComplete: false,
+            lastSavedAt: timestamp,
+          },
+        }),
+        {
+          action: "PFE employee comments saved",
+          entityType: "draft",
+          entityId: `draft-v${workspace.draft.version}-${key}`,
+        },
+      )
+    ) {
+      setSections(nextSections);
+      setFinalReview(false);
+      setMessage("Employee comments saved in this browser.");
+      return true;
+    }
+    return false;
   }
 
   function saveDraft() {
@@ -148,6 +242,7 @@ export default function Draft({ workspace, commit }) {
         title,
         description,
       })),
+      managerComments: { ...(workspace.managerComments || {}) },
       evidence,
       evidenceIds: evidence.map((item) => item.id),
     };
@@ -203,10 +298,19 @@ export default function Draft({ workspace, commit }) {
       )
     ) {
       setSections({ ...latestSubmission.sections });
+      setProfileDetails({
+        jobTitle: latestSubmission.profile?.jobTitle || "",
+        presentJobLength: latestSubmission.profile?.presentJobLength || "",
+      });
       setFinalReview(false);
       setMessage(`Editable draft version ${nextVersion} started.`);
     }
   }
+
+  const readOnlyManagerComments =
+    submittedAndLocked
+      ? latestSubmission.managerComments || workspace.managerComments || {}
+      : workspace.managerComments || {};
 
   return (
     <>
@@ -229,9 +333,9 @@ export default function Draft({ workspace, commit }) {
       <div className="sample-notice">
         <strong>Employee draft only</strong>
         <span>
-          Included accomplishments appear automatically in their selected
-          section. Manager ratings, manager comments, and signatures are not
-          included.
+          Employee comments can be edited section by section. Manager comments
+          are read-only and appear only if provided. This prototype does not
+          collect ratings, signatures, or policy acknowledgements.
         </span>
       </div>
       {submittedAndLocked && (
@@ -245,7 +349,55 @@ export default function Draft({ workspace, commit }) {
         {message}
       </p>
 
-      <article className="pfe-document" aria-label="Employee PFE draft">
+      <div className="pfe-zoom-controls" role="group" aria-label="PFE draft zoom">
+        <span>Draft size</span>
+        <button
+          className="secondary-button"
+          type="button"
+          aria-label="Zoom out PFE draft"
+          title="Zoom out"
+          disabled={draftZoom <= MIN_DRAFT_ZOOM}
+          onClick={() =>
+            setDraftZoom((zoom) =>
+              Math.max(MIN_DRAFT_ZOOM, zoom - DRAFT_ZOOM_STEP),
+            )
+          }
+        >
+          −
+        </button>
+        <output aria-live="polite" aria-atomic="true">
+          {draftZoom}%
+        </output>
+        <button
+          className="secondary-button"
+          type="button"
+          aria-label="Zoom in PFE draft"
+          title="Zoom in"
+          disabled={draftZoom >= MAX_DRAFT_ZOOM}
+          onClick={() =>
+            setDraftZoom((zoom) =>
+              Math.min(MAX_DRAFT_ZOOM, zoom + DRAFT_ZOOM_STEP),
+            )
+          }
+        >
+          +
+        </button>
+        <button
+          className="text-button"
+          type="button"
+          aria-label="Reset PFE draft zoom"
+          onClick={() => setDraftZoom(100)}
+          disabled={draftZoom === 100}
+        >
+          Reset
+        </button>
+      </div>
+
+      <article
+        className="pfe-document"
+        aria-label="Employee PFE draft"
+        style={{ zoom: `${draftZoom}%` }}
+      >
         <header className="pfe-document-header">
           <SaskTelLogo />
           <div className="pfe-document-title">
@@ -278,10 +430,10 @@ export default function Draft({ workspace, commit }) {
                 placeholder="Add job title"
               />
             </label>
-            <div className="pfe-information-field">
+            <label className="pfe-information-field" htmlFor="present-job-length">
               <span>Length of time in present job</span>
               <input
-                aria-label="Length of time in present job"
+                id="present-job-length"
                 value={profileDetails.presentJobLength}
                 readOnly={submittedAndLocked}
                 onChange={(event) =>
@@ -289,7 +441,7 @@ export default function Draft({ workspace, commit }) {
                 }
                 placeholder="Add length of time"
               />
-            </div>
+            </label>
             <div className="pfe-information-field">
               <span>Employee ID</span>
               <strong>{workspace.profile.id}</strong>
@@ -302,6 +454,15 @@ export default function Draft({ workspace, commit }) {
               </strong>
             </div>
           </div>
+          <EmployeeComments
+            id="general-information-comments"
+            value={sections.generalInformation || ""}
+            locked={submittedAndLocked}
+            onSave={(value) => saveEmployeeComments("generalInformation", value)}
+          />
+          <ManagerComments
+            comments={readOnlyManagerComments.generalInformation}
+          />
         </section>
 
         <section className="pfe-document-section">
@@ -309,24 +470,46 @@ export default function Draft({ workspace, commit }) {
           <div className="pfe-document-subsection">
             <h3>A. Foundational Values</h3>
             <p className="pfe-document-help">
-              Foundational-value ratings and comments are manager-assessed and
-              are not part of this employee draft.
+              Shared values expected across roles.
             </p>
+            <div className="pfe-value-themes">
+              {valueThemes.slice(0, 3).map((value) => (
+                <span key={value}>{value}</span>
+              ))}
+            </div>
+            <EmployeeComments
+              id="foundational-values-comments"
+              value={sections.foundationalValues || ""}
+              locked={submittedAndLocked}
+              onSave={(value) =>
+                saveEmployeeComments("foundationalValues", value)
+              }
+            />
+            <ManagerComments
+              comments={readOnlyManagerComments.foundationalValues}
+            />
           </div>
           <div className="pfe-document-subsection">
             <h3>B. Cultural Values and Behaviours</h3>
             <p className="pfe-document-help">
-              Employee results and supporting evidence
+              Workplace behaviour themes included in the PFE template.
             </p>
+            <div className="pfe-value-themes">
+              {valueThemes.slice(3).map((value) => (
+                <span key={value}>{value}</span>
+              ))}
+            </div>
             <EvidenceList evidence={evidenceFor("Values and Behaviours")} />
-            <SectionInput
+            <EmployeeComments
               id="values-and-behaviours"
-              label="Employee Results — Values and Behaviours"
               value={sections.valuesAndBehaviours}
-              readOnly={submittedAndLocked}
-              onChange={(value) =>
-                updateSection("valuesAndBehaviours", value)
+              locked={submittedAndLocked}
+              onSave={(value) =>
+                saveEmployeeComments("valuesAndBehaviours", value)
               }
+            />
+            <ManagerComments
+              comments={readOnlyManagerComments.valuesAndBehaviours}
             />
           </div>
         </section>
@@ -334,8 +517,8 @@ export default function Draft({ workspace, commit }) {
         <section className="pfe-document-section">
           <h2><span>3.</span> Business Objectives - 50%</h2>
           <p className="pfe-document-help">
-            Objectives are drawn from your saved goals. Included accomplishments
-            are shown under the matching objective.
+            Objectives come from saved goals. Included accomplishments appear
+            beneath the goal they support.
           </p>
           {workspace.goals.length === 0 ? (
             <p className="pfe-no-evidence">
@@ -349,19 +532,29 @@ export default function Draft({ workspace, commit }) {
                 <EvidenceList
                   evidence={evidenceFor("Business Objectives", goal.id)}
                 />
-                <SectionInput
+                <EmployeeComments
                   id={`objective-results-${goal.id}`}
-                  label="Employee Results"
                   value={sections[`goal-${goal.id}`] || ""}
-                  readOnly={submittedAndLocked}
-                  onChange={(value) =>
-                    updateSection(`goal-${goal.id}`, value)
+                  locked={submittedAndLocked}
+                  onSave={(value) =>
+                    saveEmployeeComments(`goal-${goal.id}`, value)
                   }
-                  placeholder="Add employee results for this objective."
+                />
+                <ManagerComments
+                  comments={readOnlyManagerComments[`goal-${goal.id}`]}
                 />
               </div>
             ))
           )}
+          <EmployeeComments
+            id="business-objectives-comments"
+            value={sections.businessObjectives || ""}
+            locked={submittedAndLocked}
+            onSave={(value) => saveEmployeeComments("businessObjectives", value)}
+          />
+          <ManagerComments
+            comments={readOnlyManagerComments.businessObjectives}
+          />
           {evidenceFor("Business Objectives", "").length > 0 && (
             <div className="pfe-objective">
               <h3>Business Objective evidence without a linked goal</h3>
@@ -373,34 +566,70 @@ export default function Draft({ workspace, commit }) {
         <section className="pfe-document-section pfe-excluded-section">
           <h2><span>4.</span> Overall Performance Summary</h2>
           <p>
-            The template’s overall rating is manager-assessed and is not part
-            of this employee draft.
+            This is a manager-assessed area. Performance ratings and
+            employment decisions are not collected or displayed in this
+            employee prototype.
           </p>
+          <ManagerComments
+            comments={readOnlyManagerComments.overallPerformanceSummary}
+          />
+          <EmployeeComments
+            id="performance-summary-comments"
+            value={sections.overallPerformanceSummary || ""}
+            locked={submittedAndLocked}
+            onSave={(value) =>
+              saveEmployeeComments("overallPerformanceSummary", value)
+            }
+          />
         </section>
 
         <section className="pfe-document-section">
           <h2><span>5.</span> Overall Comments</h2>
           <EvidenceList evidence={evidenceFor("Overall Comments")} />
-          <SectionInput
+          <EmployeeComments
             id="overall-comments"
-            label="Employee Comments"
             value={sections.overallComments}
-            readOnly={submittedAndLocked}
-            onChange={(value) => updateSection("overallComments", value)}
+            locked={submittedAndLocked}
+            onSave={(value) => saveEmployeeComments("overallComments", value)}
+          />
+          <ManagerComments
+            comments={readOnlyManagerComments.overallComments}
           />
         </section>
 
         <section className="pfe-document-section">
           <h2><span>6.</span> Development Planning</h2>
           <EvidenceList evidence={evidenceFor("Development Planning")} />
-          <SectionInput
+          <EmployeeComments
             id="development-planning"
-            label="Employee Development Planning"
             value={sections.developmentPlanning}
-            readOnly={submittedAndLocked}
-            onChange={(value) =>
-              updateSection("developmentPlanning", value)
+            locked={submittedAndLocked}
+            onSave={(value) =>
+              saveEmployeeComments("developmentPlanning", value)
             }
+          />
+          <ManagerComments
+            comments={readOnlyManagerComments.developmentPlanning}
+          />
+        </section>
+
+        <section className="pfe-document-section pfe-excluded-section">
+          <h2><span>7.</span> Signatures and Acknowledgement</h2>
+          <p>
+            Signature and policy acknowledgement workflows are not collected
+            in this local employee draft. Refer to the official form for
+            required acknowledgements.
+          </p>
+          <EmployeeComments
+            id="acknowledgement-comments"
+            value={sections.policyAcknowledgements || ""}
+            locked={submittedAndLocked}
+            onSave={(value) =>
+              saveEmployeeComments("policyAcknowledgements", value)
+            }
+          />
+          <ManagerComments
+            comments={readOnlyManagerComments.policyAcknowledgements}
           />
         </section>
       </article>

@@ -85,15 +85,20 @@ export function createDefaultWorkspace() {
       version: 1,
       status: "Not Started",
       sections: {
+        generalInformation: "",
+        foundationalValues: "",
         valuesAndBehaviours: "",
         businessObjectives: "",
+        overallPerformanceSummary: "",
         overallComments: "",
         developmentPlanning: "",
+        policyAcknowledgements: "",
       },
       evidenceIds: [],
       finalReviewComplete: false,
       lastSavedAt: null,
     },
+    managerComments: {},
     submissions: [],
     activity: [
       {

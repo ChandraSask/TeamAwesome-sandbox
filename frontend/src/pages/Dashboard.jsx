@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Card from "../components/Card";
 import PageHeading from "../components/PageHeading";
 import {
   calculateProgress,
   currentNextReminder,
   formatDate,
+  monthEndCountdown,
   nextReminderDate,
 } from "../pfeUtils";
 
@@ -17,7 +18,35 @@ const blankReminder = {
   email: "",
 };
 
-function ReminderForm({ workspace, commit, onClose }) {
+function MonthEndReminder({ countdown, onAdd }) {
+  return (
+    <div className={`month-end-reminder countdown-${countdown.tone}`}>
+      <strong>
+        {countdown.reminderDue ? "Month-end reminder" : "Monthly check-in"}
+      </strong>
+      <p>
+        {countdown.daysRemaining === 0
+          ? "Today is the last day of the month. Take a moment to capture your accomplishments."
+          : `${countdown.daysRemaining} days until month end. ${
+              countdown.reminderDue
+                ? "Capture your accomplishments before the month ends."
+                : "Keep adding accomplishments as you go."
+            }`}
+      </p>
+      <p className="small">
+        Automatic in-app reminders appear with fewer than 10 days remaining.
+        They are separate from the demo schedule below. No email is sent.
+      </p>
+      {countdown.reminderDue && (
+        <button className="text-button" type="button" onClick={onAdd}>
+          Add this month's accomplishments
+        </button>
+      )}
+    </div>
+  );
+}
+
+function ReminderForm({ workspace, commit, onClose, countdown, onAdd }) {
   const [form, setForm] = useState(
     workspace.reminder || {
       ...blankReminder,
@@ -83,6 +112,7 @@ function ReminderForm({ workspace, commit, onClose }) {
           Close
         </button>
       </div>
+      <MonthEndReminder countdown={countdown} onAdd={onAdd} />
       <form onSubmit={save}>
         <label className="checkbox-row">
           <input
@@ -90,7 +120,7 @@ function ReminderForm({ workspace, commit, onClose }) {
             checked={form.enabled}
             onChange={(event) => update("enabled", event.target.checked)}
           />
-          Enable this reminder
+          Enable this demo schedule
         </label>
         <div className="form-grid">
           <label>
@@ -173,6 +203,17 @@ function ReminderForm({ workspace, commit, onClose }) {
 
 export default function Dashboard({ workspace, commit, navigate }) {
   const [showReminder, setShowReminder] = useState(false);
+  const [today, setToday] = useState(() => new Date());
+  useEffect(() => {
+    const refresh = () => setToday(new Date());
+    const timer = window.setInterval(refresh, 60000);
+    window.addEventListener("focus", refresh);
+    return () => {
+      window.clearInterval(timer);
+      window.removeEventListener("focus", refresh);
+    };
+  }, []);
+  const countdown = monthEndCountdown(today);
   const progress = calculateProgress(workspace);
   const reminderDate = workspace.reminder?.enabled
     ? currentNextReminder(workspace.reminder)
@@ -207,19 +248,19 @@ export default function Dashboard({ workspace, commit, navigate }) {
         </span>
       </div>
       <div className="summary-grid summary-grid-four">
-        <Card>
+        <Card className="dashboard-metric metric-status">
           <span className="metric-label">PFE status</span>
           <strong className="metric-text">{status}</strong>
           <span className="muted">
             Last updated {formatDate(workspace.updatedAt)}
           </span>
         </Card>
-        <Card>
+        <Card className="dashboard-metric metric-progress">
           <span className="metric-label">Completion progress</span>
           <strong className="metric-value">{progress.percent}%</strong>
           <span className="muted">Preparation only, not performance</span>
         </Card>
-        <Card>
+        <Card className="dashboard-metric metric-goals">
           <span className="metric-label">Goals</span>
           <strong className="metric-value">{workspace.goals.length}</strong>
           <span className="muted">
@@ -227,7 +268,7 @@ export default function Dashboard({ workspace, commit, navigate }) {
             active
           </span>
         </Card>
-        <Card>
+        <Card className="dashboard-metric metric-accomplishments">
           <span className="metric-label">Accomplishments</span>
           <strong className="metric-value">
             {workspace.accomplishments.length}
@@ -235,6 +276,30 @@ export default function Dashboard({ workspace, commit, navigate }) {
           <span className="muted">Evidence captured this cycle</span>
         </Card>
       </div>
+      <Card className={`month-end-card countdown-${countdown.tone}`}>
+        <div>
+          <span className="metric-label">Month-end countdown</span>
+          <h2>
+            {countdown.daysRemaining === 0
+              ? "Month ends today"
+              : `${countdown.daysRemaining} ${countdown.daysRemaining === 1 ? "day" : "days"} to month end`}
+          </h2>
+          <p>
+            Monthly check-in: {formatDate(countdown.monthEnd, { dateStyle: "long" })}.
+            {" "}Capture your accomplishments while they are fresh.
+          </p>
+          <span className="countdown-status">
+            {countdown.daysRemaining === 0
+              ? "Last day to update this month"
+              : countdown.reminderDue
+                ? "Reminder active: fewer than 10 days left"
+                : "Time to prepare"}
+          </span>
+        </div>
+        <button className="primary" onClick={() => navigate("accomplishments")}>
+          + Add accomplishment
+        </button>
+      </Card>
       <div className="dashboard-layout">
         <Card>
           <div className="section-heading">
@@ -248,9 +313,17 @@ export default function Dashboard({ workspace, commit, navigate }) {
           />
           <div className="milestone-list">
             {progress.milestones.map((item) => (
-              <div className="milestone-row" key={item.label}>
+              <div
+                className={`milestone-row ${item.complete ? "milestone-complete" : "milestone-pending"}`}
+                key={item.label}
+              >
                 <span aria-hidden="true">{item.complete ? "✓" : "○"}</span>
-                <span>{item.label}</span>
+                <span>
+                  {item.label}
+                  <span className="sr-only">
+                    {item.complete ? " - Complete" : " - To do"}
+                  </span>
+                </span>
                 <strong>{item.weight}%</strong>
               </div>
             ))}
@@ -263,9 +336,13 @@ export default function Dashboard({ workspace, commit, navigate }) {
               <span
                 className={`status-badge ${workspace.reminder?.enabled ? "complete" : ""}`}
               >
-                {workspace.reminder?.enabled ? "Enabled" : "Not scheduled"}
+                {workspace.reminder?.enabled ? "Demo schedule enabled" : "Demo schedule off"}
               </span>
             </div>
+            <MonthEndReminder
+              countdown={countdown}
+              onAdd={() => navigate("accomplishments")}
+            />
             {workspace.reminder ? (
               <>
                 <p>
@@ -307,6 +384,8 @@ export default function Dashboard({ workspace, commit, navigate }) {
             workspace={workspace}
             commit={commit}
             onClose={() => setShowReminder(false)}
+            countdown={countdown}
+            onAdd={() => navigate("accomplishments")}
           />
         </div>
       )}
